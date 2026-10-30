@@ -13,10 +13,16 @@ The agent uses Microsoft's Azure DevOps MCP server (`@azure-devops/mcp`, needs N
    - [ ] **Code: Read & Write**: pull requests through the REST API: creating them, posting review comments, linking work items. `Read` alone lists PRs but every write returns `401`.
 
    Anything else (Build, Release, Packaging) stays unticked until a rule here needs it. When a scope is added later, the token must be regenerated and stored again (step 2).
-2. Store it Base64-encoded (`:<PAT>`) in a user environment variable, `<env-var>`. One line, pasted as is (`"User"` is the variable scope, not a name to replace); it asks for the PAT without echoing it and prints `True` when the variable is set:
+2. Store it Base64-encoded (`:<PAT>`) in a user environment variable, `<env-var>`. The name is `PERSONAL_ACCESS_TOKEN` for the first organization on this machine and `ADO_PAT_<ORG>` for every further one (`ADO_PAT_CONTOSO` for the organization `contoso`); the profile's `MCP server` line records which one the backlog uses. Replace `<env-var>` in both places of the line below before pasting; `"User"` is the variable scope and stays as is. It asks for the PAT without echoing it and prints `True` when the variable is set:
 
    ```powershell
    $p=[Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR((Read-Host "PAT" -AsSecureString))); [Environment]::SetEnvironmentVariable("<env-var>",[Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$p")),"User"); Remove-Variable p; [bool][Environment]::GetEnvironmentVariable("<env-var>","User")
+   ```
+
+   The same line for the first organization, ready to paste:
+
+   ```powershell
+   $p=[Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR((Read-Host "PAT" -AsSecureString))); [Environment]::SetEnvironmentVariable("PERSONAL_ACCESS_TOKEN",[Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$p")),"User"); Remove-Variable p; [bool][Environment]::GetEnvironmentVariable("PERSONAL_ACCESS_TOKEN","User")
    ```
 
 3. Register the server at user scope, so it works in every repository of the workspace and in the backlog. The server reads the token only from `PERSONAL_ACCESS_TOKEN`, so:

@@ -73,16 +73,16 @@ The overview of the backlog is derived from the items, never from a hand-maintai
 
 ```powershell
 # every item and its status
-Get-ChildItem -Recurse -Filter *.md -Exclude README.md,AGENTS.md | Where-Object { $_.FullName -notmatch '[\/].ai-workflow[\/]' } |
+Get-ChildItem -Recurse -Filter *.md -Exclude README.md,AGENTS.md | Where-Object { $_.FullName -notmatch '[\\/]\.ai-workflow[\\/]' } |
   Select-String -Pattern '(?<=^\|\s*Status\s*\|\s*|^-?\s*\*\*Status:\*\*\s*)`[a-z-]+`' -AllMatches |
   ForEach-Object { [PSCustomObject]@{ Status = ($_.Matches[0].Value -replace '`',''); Item = (Resolve-Path -Relative $_.Path) } } |
   Sort-Object Status, Item | Format-Table -AutoSize -Wrap
 
 # anything still open inside an item
-Get-ChildItem -Recurse -Filter *.md | Select-String -Pattern '^\s*- \[ \]'
+Get-ChildItem -Recurse -Filter *.md | Where-Object { $_.FullName -notmatch '[\\/]\.ai-workflow[\\/]' } | Select-String -Pattern '^\s*- \[ \]'
 ```
 
-Run it from the backlog root. The `Where-Object` filter skips `.ai-workflow/`: this file shows the status shape, and would otherwise appear in the listing.
+Run it from the backlog root. The `Where-Object` filter skips `.ai-workflow/`: this file shows the status shape and would otherwise appear in the listing.
 
 An item is done when its status is `completed` **and** it has no open `- [ ]` checkboxes left; only then does a ticket move to `tickets/completed/`. A support case is done when its status is `resolved` or `rejected` and it has no open checkboxes left.
 

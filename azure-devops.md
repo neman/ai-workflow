@@ -13,14 +13,16 @@ The agent uses Microsoft's Azure DevOps MCP server (`@azure-devops/mcp`, needs N
    - [ ] **Code: Read & Write**: pull requests through the REST API: creating them, posting review comments, linking work items. `Read` alone lists PRs but every write returns `401`.
 
    Anything else (Build, Release, Packaging) stays unticked until a rule here needs it. When a scope is added later, the token must be regenerated and stored again (step 2).
-2. Store it Base64-encoded (`:<PAT>`) in a user environment variable, `<env-var>`. The name is `PERSONAL_ACCESS_TOKEN` for the first organization on this machine and `ADO_PAT_<ORG>` for every further one (`ADO_PAT_CONTOSO` for the organization `contoso`); the profile's `MCP server` line records which one the backlog uses. Set the name on the first line, then paste the whole block into PowerShell (5.1 or 7). It stops at a `PAT:` prompt: paste the token there (nothing is echoed; use `Ctrl+V` or `Shift+Insert` if a right click pastes nothing) and press Enter. The last line prints `True` only when a non-empty token was stored; `False` means the prompt received nothing and the block must be run again:
+2. Store it Base64-encoded (`:<PAT>`) in a user environment variable, `<env-var>`. The name is `PERSONAL_ACCESS_TOKEN` for the first organization on this machine and `ADO_PAT_<ORG>` for every further one (`ADO_PAT_CONTOSO` for the organization `contoso`); the profile's `MCP server` line records which one the backlog uses. Run the script from this module in PowerShell (5.1 or 7), with the variable name as its only argument:
 
    ```powershell
-   $name = "PERSONAL_ACCESS_TOKEN"   # or ADO_PAT_<ORG> for a further organization
-   $pat  = [Net.NetworkCredential]::new("", (Read-Host "PAT" -AsSecureString)).Password
-   [Environment]::SetEnvironmentVariable($name, [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$pat")), "User")
-   Remove-Variable pat
-   ([Environment]::GetEnvironmentVariable($name, "User")).Length -gt 4
+   & "<backlog>\.ai-workflow\scripts\Set-AdoPat.ps1" -Name PERSONAL_ACCESS_TOKEN
+   ```
+
+   It stops at a `PAT for …:` prompt: paste the token there (nothing is echoed; use `Ctrl+V` or `Shift+Insert` if a right click pastes nothing) and press Enter. It confirms with `… stored (N characters)`, and refuses an empty paste or anything that is not a bare token, leaving the variable unchanged. Before the module is cloned, the same script runs straight from GitHub:
+
+   ```powershell
+   & ([scriptblock]::Create((Invoke-RestMethod https://raw.githubusercontent.com/neman/ai-workflow/main/scripts/Set-AdoPat.ps1))) -Name PERSONAL_ACCESS_TOKEN
    ```
 
 3. Register the server at user scope, so it works in every repository of the workspace and in the backlog. The server reads the token only from `PERSONAL_ACCESS_TOKEN`, so:
@@ -70,7 +72,7 @@ Notes:
 
 - `Cannot find module '../build/Release/keytar.node'` from `npx -y @azure-devops/mcp --help`: the native `keytar` module was not built during the first `npx` download. Run `npm rebuild keytar` in the `npx` cache folder named in the error (`%LOCALAPPDATA%\npm-cache\_npx\<hash>`), then check `--help` again.
 - `Connection closed` right after start: the environment variable is not visible to this process; see step 4.
-- The check in the notes above returns `203` instead of `200`: the request was not authenticated and Azure DevOps answered with its sign-in page. Usually the variable holds an empty token (the `PAT:` prompt received nothing; its Base64 value is then 4 characters long), otherwise the PAT belongs to another organization, has expired, or the account is not a member of this organization. Repeat step 2.
+- The check in the notes above returns `203` instead of `200`: the request was not authenticated and Azure DevOps answered with its sign-in page. Either the variable holds an empty token (set by hand; its Base64 value is then 4 characters long), or the PAT belongs to another organization, has expired, or the account is not a member of this organization. Repeat step 2.
 - If the organization is later connected to the company's Entra directory, `-a interactive` or `-a azcli` becomes possible and the PAT can be dropped.
 
 ## Pull requests

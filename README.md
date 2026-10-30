@@ -16,6 +16,7 @@ What it does not do: it is not a task runner or a plugin, and it does not replac
 | `INIT.md` | agents | setting up or checking a workspace |
 | `skills/` | agents | a skill asks for the issue tracker, triage labels or domain docs |
 | `templates/` | `INIT.md` | the two profile files it fills in |
+| `scripts/` | people | `Set-AdoPat.ps1` stores the Azure DevOps token (`azure-devops.md` "Setup", step 2) |
 
 ## Prerequisites
 

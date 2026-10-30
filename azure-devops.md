@@ -1,12 +1,18 @@
 # Azure DevOps board
 
-Rules for a backlog whose profile says `Tracker: Azure DevOps`. Read this before any board write (creating or changing work items, posting pull request comments) and before setting up the MCP server. Values marked `<…>` come from the profile's `Board` section or from the person setting things up.
+Rules for a backlog whose profile says `Tracker: Azure DevOps`. Read this before any board write (creating or changing work items, creating pull requests or posting review comments) and before setting up the MCP server. Values marked `<…>` come from the profile's `Board` section or from the person setting things up.
 
 ## Setup
 
 The agent uses Microsoft's Azure DevOps MCP server (`@azure-devops/mcp`, needs Node.js) with a personal access token (PAT). Interactive sign-in works only when the organization is connected to the Microsoft Entra directory that the signed-in account belongs to; an organization whose members sign in with personal accounts rejects it (`TF400813: … is not authorized`, or `invalid_scope`), and the Azure CLI token is rejected the same way. A PAT works in both cases, so it is the default.
 
-1. Create a PAT at `https://dev.azure.com/<organization>/_usersSettings/tokens`, signed in with the account you use for the board. Scopes: **Work Items: Read & Write** and **Project and Team: Read**.
+1. Create a PAT at `https://dev.azure.com/<organization>/_usersSettings/tokens`, signed in with the account you use for the board. Tick exactly these scopes (custom defined):
+
+   - [ ] **Work Items: Read & Write**: reading and entering board items through the MCP server.
+   - [ ] **Project and Team: Read**: listing projects, teams and iterations; the server fails to start without it.
+   - [ ] **Code: Read & Write**: pull requests through the REST API: creating them, posting review comments, linking work items. `Read` alone lists PRs but every write returns `401`.
+
+   Anything else (Build, Release, Packaging) stays unticked until a rule here needs it. When a scope is added later, the token must be regenerated and stored again (step 2).
 2. Store it Base64-encoded (`:<PAT>`) in a user environment variable, `<env-var>`. One line, pasted as is (`"User"` is the variable scope, not a name to replace); it asks for the PAT without echoing it and prints `True` when the variable is set:
 
    ```powershell
@@ -62,11 +68,26 @@ Notes:
 - `Connection closed` right after start: the environment variable is not visible to this process; see step 4.
 - If the organization is later connected to the company's Entra directory, `-a interactive` or `-a azcli` becomes possible and the PAT can be dropped.
 
-## Pull request comments
+## Pull requests
 
-The server above has no pull request tools (`repositories` is not loaded). When the owner asks for review comments on a PR "in their name", post them through the Azure DevOps REST API with the same PAT (already Base64 `:<PAT>`, sent as `Authorization: Basic …`). Use only that variable, never search the environment for other tokens, and never print the token.
+The server above has no pull request tools (`repositories` is not loaded, so every session stays light). Pull requests go through the Azure DevOps REST API with the same PAT (already Base64 `:<PAT>`, sent as `Authorization: Basic …`). Use only that variable, never search the environment for other tokens, and never print the token. Base URL: `https://dev.azure.com/<organization>/<project>/_apis/git/repositories/<repo>`.
 
-- Find the PR: `GET https://dev.azure.com/<organization>/<project>/_apis/git/repositories/<repo>/pullrequests?searchCriteria.sourceRefName=refs/heads/<branch>&searchCriteria.status=all&api-version=7.1`
+- Find the PR: `GET …/pullrequests?searchCriteria.sourceRefName=refs/heads/<branch>&searchCriteria.status=all&api-version=7.1`. Do this before creating one, so a branch never gets two.
+
+### Creating a pull request
+
+Only when the owner asks for it; the branch must already be pushed. Show the owner the source branch, the target branch and the title, and create the PR after confirmation:
+
+- `POST …/pullrequests?api-version=7.1` with `sourceRefName`, `targetRefName`, `title`, `description` and `workItemRefs: [{"id": "<workItemId>"}]` for every board item the branch implements. Send the body as UTF-8 bytes.
+- The target is the branch the work was cut from (the mainline from the workspace profile's `Conventions`, or the integration branch of an epic from the topic's `AGENTS.md`).
+- Title and description in the profile's language, for non-technical readers, no attribution lines. The description says what changes for the user and names the board items as `#<id>`.
+- Record the PR id where the work is written up (the ticket, the plan's `Board:` line or the review record).
+
+### Review comments
+
+When the owner asks for review comments on a PR "in their name":
+
+- Find the PR as above.
 - Read existing threads first (`GET …/pullRequests/<id>/threads?api-version=7.1`) so the same finding is not posted twice.
 - Post: `POST …/pullRequests/<id>/threads?api-version=7.1` with `threadContext.filePath` (leading `/`) and `rightFileStart` / `rightFileEnd` line numbers from the PR's source commit. Send the body as UTF-8 bytes, otherwise non-ASCII characters are garbled.
 - Comments are in the profile's language. Record the PR and thread ids where the review is written up (the plan's `Code review` section, the review record or the ticket).

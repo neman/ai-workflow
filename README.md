@@ -57,7 +57,7 @@ my-project/
     └── README.md
 ```
 
-What stays with you: committing the backlog and the repositories' `AGENTS.md`, creating the backlog's remote repository, creating a PAT and restarting the terminal if the board is used. The agent lists these at the end. `INIT.md` can be run again at any time; it only adds what is missing.
+What stays with you: committing the backlog and the repositories' `AGENTS.md`, creating the backlog's remote repository, and, if the board is used, creating a PAT when the agent reaches `INIT.md` Step 7, then restarting the terminal and pasting the same message in a new session. Nothing needs to be prepared before the first message: the agent asks for everything in order and gives you each command with your values. `INIT.md` can be run again at any time; it only adds what is missing.
 
 Setting up by hand follows the same `INIT.md`, step by step.
 

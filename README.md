@@ -96,4 +96,4 @@ Expected: `tickets/active/`, the fields from `backlog.md` with the labels from t
 
 > You found a bug outside your task: where do you write it and do you commit?
 
-Expected: the backlog path, and "the owner commits".
+Expected: the backlog path, and "the owner commits". The backlog is outside the repository, so Claude Code asks once per session for permission to read its files; allow it, or start the session with `claude --add-dir <path to the backlog>`.

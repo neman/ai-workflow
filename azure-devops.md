@@ -13,16 +13,16 @@ The agent uses Microsoft's Azure DevOps MCP server (`@azure-devops/mcp`, needs N
    - [ ] **Code: Read & Write**: pull requests through the REST API: creating them, posting review comments, linking work items. `Read` alone lists PRs but every write returns `401`.
 
    Anything else (Build, Release, Packaging) stays unticked until a rule here needs it. When a scope is added later, the token must be regenerated and stored again (step 2).
-2. Store it Base64-encoded (`:<PAT>`) in a user environment variable, `<env-var>`. The name is `PERSONAL_ACCESS_TOKEN` for the first organization on this machine and `ADO_PAT_<ORG>` for every further one (`ADO_PAT_CONTOSO` for the organization `contoso`); the profile's `MCP server` line records which one the backlog uses. Replace `<env-var>` in both places of the line below before pasting; `"User"` is the variable scope and stays as is. It asks for the PAT without echoing it and prints `True` when the variable is set:
+2. Store it Base64-encoded (`:<PAT>`) in a user environment variable, `<env-var>`. The name is `PERSONAL_ACCESS_TOKEN` for the first organization on this machine and `ADO_PAT_<ORG>` for every further one (`ADO_PAT_CONTOSO` for the organization `contoso`); the profile's `MCP server` line records which one the backlog uses. Replace `<env-var>` in both places of the line below before pasting; `"User"` is the variable scope and stays as is. It stops at a `PAT:` prompt: paste the token there (nothing is echoed; use `Ctrl+V` or `Shift+Insert` if a right click pastes nothing) and press Enter. It prints `True` only when a non-empty token was stored; `False` means the prompt received nothing and the line must be run again:
 
    ```powershell
-   $p=[Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR((Read-Host "PAT" -AsSecureString))); [Environment]::SetEnvironmentVariable("<env-var>",[Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$p")),"User"); Remove-Variable p; [bool][Environment]::GetEnvironmentVariable("<env-var>","User")
+   $p=[Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR((Read-Host "PAT" -AsSecureString))); [Environment]::SetEnvironmentVariable("<env-var>",[Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$p")),"User"); Remove-Variable p; ([Environment]::GetEnvironmentVariable("<env-var>","User")).Length -gt 4
    ```
 
    The same line for the first organization, ready to paste:
 
    ```powershell
-   $p=[Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR((Read-Host "PAT" -AsSecureString))); [Environment]::SetEnvironmentVariable("PERSONAL_ACCESS_TOKEN",[Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$p")),"User"); Remove-Variable p; [bool][Environment]::GetEnvironmentVariable("PERSONAL_ACCESS_TOKEN","User")
+   $p=[Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR((Read-Host "PAT" -AsSecureString))); [Environment]::SetEnvironmentVariable("PERSONAL_ACCESS_TOKEN",[Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$p")),"User"); Remove-Variable p; ([Environment]::GetEnvironmentVariable("PERSONAL_ACCESS_TOKEN","User")).Length -gt 4
    ```
 
 3. Register the server at user scope, so it works in every repository of the workspace and in the backlog. The server reads the token only from `PERSONAL_ACCESS_TOKEN`, so:
@@ -72,6 +72,7 @@ Notes:
 
 - `Cannot find module '../build/Release/keytar.node'` from `npx -y @azure-devops/mcp --help`: the native `keytar` module was not built during the first `npx` download. Run `npm rebuild keytar` in the `npx` cache folder named in the error (`%LOCALAPPDATA%\npm-cache\_npx\<hash>`), then check `--help` again.
 - `Connection closed` right after start: the environment variable is not visible to this process; see step 4.
+- The check in the notes above returns `203` instead of `200`: the request was not authenticated and Azure DevOps answered with its sign-in page. Usually the variable holds an empty token (the `PAT:` prompt received nothing; its Base64 value is then 4 characters long), otherwise the PAT belongs to another organization, has expired, or the account is not a member of this organization. Repeat step 2.
 - If the organization is later connected to the company's Entra directory, `-a interactive` or `-a azcli` becomes possible and the PAT can be dropped.
 
 ## Pull requests

@@ -14,7 +14,7 @@ The workspace `AGENTS.md` carries these fields; every rule below that says "from
 
 ## Session findings go to the backlog
 
-Everything discovered during a session that is not the task itself — a bug, technical debt, a refactoring idea, an architecture note, a testing or code-review finding, a support case — goes **outside the code repository**, into the backlog folder from the profile. `<backlog>/.ai-workflow/backlog.md` is the authority for its layout, statuses, required contents and file names: read it before creating or changing an item there, and never restate its rules in a repository file.
+Everything discovered during a session that is not the task itself — a bug, technical debt, a refactoring idea, an architecture note, a testing or code-review finding, a support case — goes **outside the code repository**, into the backlog folder from the profile. `<backlog>/.ai-workflow/backlog.md` is the authority for its layout, statuses, required contents and file names, and `<backlog>/AGENTS.md` (the backlog profile) gives the labels to write: read both before creating or changing an item there, and never restate their rules in a repository file.
 
 Write findings in the profile's language. Each item stands on its own: the owner turns it into a board item later, without the conversation. Separate what was verified by running code from what was only read in code, and keep the priority of an unconfirmed finding low.
 

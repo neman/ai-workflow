@@ -27,12 +27,10 @@ The agent uses Microsoft's Azure DevOps MCP server (`@azure-devops/mcp`, needs N
    & ([scriptblock]::Create((Invoke-RestMethod https://raw.githubusercontent.com/neman/ai-workflow/main/scripts/Set-AdoPat.ps1))) -Name PERSONAL_ACCESS_TOKEN
    ```
 
-   **Without the script.** The same three steps by hand in PowerShell: a hidden prompt, Base64 of `:<PAT>`, and a user-scope variable. Replace `PERSONAL_ACCESS_TOKEN` with the variable name:
+   **Without the script.** The same three steps by hand in PowerShell, as one line so it pastes and runs at once: a hidden prompt, Base64 of `:<PAT>`, and a user-scope variable. Replace `PERSONAL_ACCESS_TOKEN` with the variable name:
 
    ```powershell
-   $pat = Read-Host -AsSecureString "PAT"
-   $plain = [Runtime.InteropServices.Marshal]::PtrToStringUni([Runtime.InteropServices.Marshal]::SecureStringToGlobalAllocUnicode($pat))
-   [Environment]::SetEnvironmentVariable('PERSONAL_ACCESS_TOKEN', [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$plain")), 'User')
+   $p = [Net.NetworkCredential]::new('', (Read-Host -AsSecureString 'PAT')).Password; [Environment]::SetEnvironmentVariable('PERSONAL_ACCESS_TOKEN', [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$p")), 'User')
    ```
 
    Nothing checks the paste here: an empty Enter stores a 4-character value (Base64 of a bare colon), and the check in the notes below then returns `203`. Never set the variable through the Windows environment dialog with the raw token; it must be the Base64 form.

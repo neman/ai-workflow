@@ -16,7 +16,7 @@ Collect, from the workspace folder:
 - inside the backlog, if found: `.ai-workflow/backlog.md` present and non-empty (an empty `.ai-workflow/` means the submodule is not initialised), `AGENTS.md`, `docs/agents/decisions.md`, the folders from `backlog.md` "Folders";
 - each code repository's `AGENTS.md`: missing, or present with / without the line `Read ../AGENTS.md before starting.` as its first line;
 - loose Markdown files in the workspace folder (for example `*findings*.md`, `*notes*.md`): candidates for the backlog;
-- remote branches of each repository (`git -C <repo> branch -r`), to propose shared branches and a naming convention.
+- remote branches of each repository (`git -C <repo> branch -r`), to propose shared branches and to check the names against `.ai-workflow/workspace.md` "Branches".
 
 Print the survey as a table `Item | Status (exists / missing / partial)`. Everything marked `exists` is skipped below.
 
@@ -27,8 +27,8 @@ Ask only what the survey did not answer. Defaults in parentheses are the recomme
 1. Backlog folder name (`ai-backlog`, or the existing one).
 2. Who works here: names of the people who run agent sessions.
 3. Language of backlog items and board text (English).
-4. Shared branches: propose from the surveyed remote branches, e.g. `main`, `dev`, `release/*`.
-5. Branch naming convention: propose from the surveyed branch names; offer `TBD` when the branches disagree.
+4. Shared branches: `main`, `dev`, `release/*` (the default from `workspace.md` "Branches"), adjusted from the surveyed remote branches.
+5. Branch naming deviations: list the surveyed remote branches that do not match the convention in `workspace.md` "Branches", and ask whether each is a legacy branch to record under `## Conventions` or a stale branch to ignore. The convention itself is not asked; it is the same in every project.
 6. Tracker: Azure DevOps or none. If Azure DevOps: organization, project, server name (`azure-devops` for the first organization on this machine, `azure-devops-<org>` for further ones), environment variable name (`PERSONAL_ACCESS_TOKEN` for the first, `ADO_PAT_<ORG>` for further ones), and whether QA tests from the board (`yes` / `no` / `TBD`).
 7. For each loose Markdown file from the survey: move it into the backlog as ticket(s), or leave it.
 
@@ -56,7 +56,7 @@ Claude Code reads `AGENTS.md` directly. If, in Step 8, a fresh session does not 
 
 ## Step 4: Workspace `AGENTS.md`
 
-Missing: create it from `.ai-workflow/templates/workspace-AGENTS.md` with `<backlog>` replaced by the backlog folder name and the Profile filled from Step 2. Put the branch naming convention from Step 2 under `## Conventions`, or delete that section when there is none.
+Missing: create it from `.ai-workflow/templates/workspace-AGENTS.md` with `<backlog>` replaced by the backlog folder name and the Profile filled from Step 2. Put the branch naming deviations from Step 2 under `## Conventions`, or delete that section when there are none.
 
 Existing: do not overwrite it. Compare it with the template, list what the template has and the file lacks (the pointer line, missing Profile fields), propose the addition and apply it only after the person confirms.
 

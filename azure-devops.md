@@ -86,7 +86,7 @@ The server above has no pull request tools (`repositories` is not loaded, so eve
 Only when the owner asks for it; the branch must already be pushed. Show the owner the source branch, the target branch and the title, and create the PR after confirmation:
 
 - `POST …/pullrequests?api-version=7.1` with `sourceRefName`, `targetRefName`, `title`, `description` and `workItemRefs: [{"id": "<workItemId>"}]` for every board item the branch implements. Send the body as UTF-8 bytes.
-- The target is the branch the work was cut from (the mainline from the workspace profile's `Conventions`, or the integration branch of an epic from the topic's `AGENTS.md`).
+- The source branch is named after the board item (`workspace.md` "Branches"); a branch without an id gets its work item and its name first. The target is the branch the work was cut from (`dev` or `main`, the profile's `Conventions` when they differ, or the integration branch of an epic from the topic's `AGENTS.md`).
 - Title and description in the profile's language, for non-technical readers, no attribution lines. The description says what changes for the user and names the board items as `#<id>`.
 - Record the PR id where the work is written up (the ticket, the plan's `Board:` line or the review record).
 

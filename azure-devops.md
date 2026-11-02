@@ -13,7 +13,9 @@ The agent uses Microsoft's Azure DevOps MCP server (`@azure-devops/mcp`, needs N
    - [ ] **Code: Read & Write**: pull requests through the REST API: creating them, posting review comments, linking work items. `Read` alone lists PRs but every write returns `401`.
 
    Anything else (Build, Release, Packaging) stays unticked until a rule here needs it. When a scope is added later, the token must be regenerated and stored again (step 2).
-2. Store it Base64-encoded (`:<PAT>`) in a user environment variable, `<env-var>`. The name is `PERSONAL_ACCESS_TOKEN` for the first organization on this machine and `ADO_PAT_<ORG>` for every further one (`ADO_PAT_CONTOSO` for the organization `contoso`); the profile's `MCP server` line records which one the backlog uses. Run the script from this module in PowerShell (5.1 or 7), with the variable name as its only argument:
+2. Store it Base64-encoded (`:<PAT>`) in a user environment variable, `<env-var>`. The name is `PERSONAL_ACCESS_TOKEN` for the first organization on this machine and `ADO_PAT_<ORG>` for every further one (`ADO_PAT_CONTOSO` for the organization `contoso`); the profile's `MCP server` line records which one the backlog uses. Either way below works; the script is the default because it refuses an empty or malformed paste.
+
+   **With the script.** Run it from this module in PowerShell (5.1 or 7), with the variable name as its only argument. Nothing in the script is edited:
 
    ```powershell
    & "<backlog>\.ai-workflow\scripts\Set-AdoPat.ps1" -Name PERSONAL_ACCESS_TOKEN
@@ -24,6 +26,16 @@ The agent uses Microsoft's Azure DevOps MCP server (`@azure-devops/mcp`, needs N
    ```powershell
    & ([scriptblock]::Create((Invoke-RestMethod https://raw.githubusercontent.com/neman/ai-workflow/main/scripts/Set-AdoPat.ps1))) -Name PERSONAL_ACCESS_TOKEN
    ```
+
+   **Without the script.** The same three steps by hand in PowerShell: a hidden prompt, Base64 of `:<PAT>`, and a user-scope variable. Replace `PERSONAL_ACCESS_TOKEN` with the variable name:
+
+   ```powershell
+   $pat = Read-Host -AsSecureString "PAT"
+   $plain = [Runtime.InteropServices.Marshal]::PtrToStringUni([Runtime.InteropServices.Marshal]::SecureStringToGlobalAllocUnicode($pat))
+   [Environment]::SetEnvironmentVariable('PERSONAL_ACCESS_TOKEN', [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$plain")), 'User')
+   ```
+
+   Nothing checks the paste here: an empty Enter stores a 4-character value (Base64 of a bare colon), and the check in the notes below then returns `203`. Never set the variable through the Windows environment dialog with the raw token; it must be the Base64 form.
 
 3. Register the server at user scope, so it works in every repository of the workspace and in the backlog. The server reads the token only from `PERSONAL_ACCESS_TOKEN`, so:
 

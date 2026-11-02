@@ -97,7 +97,25 @@ git push
 
 Teammates then pull the backlog and run `git submodule update --init` to check out the pinned commit.
 
-**Change the rules** in a normal clone of this repository (this folder), commit and push there, then do the two steps above in every project. Avoid editing inside `.ai-workflow/` of a project: the submodule checkout is a detached HEAD, and a commit made there is easy to leave unpushed and lose.
+**Change the rules** in a normal clone of this repository, commit and push there, then do the two steps above in every project.
+
+**Change the rules from inside a project**, when a wrong rule shows up while working there. The submodule checkout is a detached HEAD, so a commit made there as-is hangs on no branch and is easy to lose. Put it on `main` first, then push from there and move the project's pin:
+
+```powershell
+cd <backlog>/.ai-workflow
+git checkout main
+git pull
+# edit, then:
+git add -A
+git commit
+git push
+cd ..
+git add .ai-workflow
+git commit -m "Update ai-workflow"
+git push
+```
+
+Every other clone and project is then refreshed as above.
 
 ## Check it works
 

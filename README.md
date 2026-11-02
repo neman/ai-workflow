@@ -77,15 +77,27 @@ Then set up the board (previous section) if you write to it. Running `INIT.md` i
 
 ## Update or change the module
 
-A submodule is pinned to one commit. To pick up new rules in a project:
+Pushing this repository does not change any project. Each backlog pins the module to one exact commit, and the pin moves only when it is moved inside that backlog.
+
+**Get the latest rules on your machine**, in the backlog folder of a project:
 
 ```powershell
 git submodule update --remote .ai-workflow
-git add .ai-workflow
-git commit -m "Update ai-workflow"
 ```
 
-To change the rules, edit a normal clone of this repository, commit and push there, then update the submodule in every project as above. Avoid editing inside `.ai-workflow/` of a project: the submodule checkout is a detached HEAD, and a commit made there is easy to leave unpushed and lose.
+Sessions in that project read the new rules immediately. `git status` in the backlog now shows `.ai-workflow` as modified; nothing else changed.
+
+**Give the team the same version**, in the same folder, after the command above:
+
+```powershell
+git add .ai-workflow
+git commit -m "Update ai-workflow"
+git push
+```
+
+Teammates then pull the backlog and run `git submodule update --init` to check out the pinned commit.
+
+**Change the rules** in a normal clone of this repository (this folder), commit and push there, then do the two steps above in every project. Avoid editing inside `.ai-workflow/` of a project: the submodule checkout is a detached HEAD, and a commit made there is easy to leave unpushed and lose.
 
 ## Check it works
 

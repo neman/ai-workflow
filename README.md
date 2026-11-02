@@ -20,6 +20,7 @@ What it does not do: it is not a task runner or a plugin, and it does not replac
 
 ## Prerequisites
 
+- Windows with PowerShell 5.1 or 7: the status listing, the token storage and the MCP wrapper are PowerShell and `.cmd`
 - git: `git --version`
 - Claude Code (`claude --version`) and/or Codex (`codex --version`)
 - Node.js, only for the Azure DevOps board: `node --version`
@@ -73,7 +74,7 @@ git clone --recurse-submodules <backlog-url>
 git submodule update --init
 ```
 
-Then set up the board (previous section) if you write to it. Running `INIT.md` in the workspace folder also works: it reports what is missing on your machine and fills it in.
+Put the clone next to the code repositories, and copy `docs/agents/workspace-AGENTS.md` from it into the workspace folder as `AGENTS.md` (the workspace folder is not under version control; the backlog keeps that copy). Then set up the board (previous section) if you write to it. Running `INIT.md` in the workspace folder does all of this: it reports what is missing on your machine and fills it in.
 
 ## Update or change the module
 

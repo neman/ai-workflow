@@ -17,7 +17,7 @@ Read the file at the path the user passes. Given a board work item id, grep `tic
 
 ## The board
 
-A skill never writes to the board on its own. Show the owner the exact list (type, title, parent, area and iteration path), write only after the owner confirms that list, then write the returned work item ids back into the ticket or plan in the same session. Never change `State` or delete board items.
+A skill never writes to the board on its own. Show the owner the exact list (type, title, parent, area and iteration path), write only after the owner confirms that list, then write the returned work item ids back into the ticket or plan in the same session. `State`, closing and deleting follow `../azure-devops.md` "Entering items": people set them, not agents.
 
 ## Comments
 

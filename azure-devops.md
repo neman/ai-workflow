@@ -30,7 +30,7 @@ The agent uses Microsoft's Azure DevOps MCP server (`@azure-devops/mcp`, needs N
    **Without the script.** The same three steps by hand in PowerShell, as one line so it pastes and runs at once: a hidden prompt, Base64 of `:<PAT>`, and a user-scope variable. Replace `PERSONAL_ACCESS_TOKEN` with the variable name:
 
    ```powershell
-   $p = [Net.NetworkCredential]::new('', (Read-Host -AsSecureString 'PAT')).Password; [Environment]::SetEnvironmentVariable('PERSONAL_ACCESS_TOKEN', [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$p")), 'User')
+   $p = [Net.NetworkCredential]::new('', (Read-Host -AsSecureString 'PAT')).Password; [Environment]::SetEnvironmentVariable('PERSONAL_ACCESS_TOKEN', [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$p")), 'User'); Remove-Variable p
    ```
 
    Nothing checks the paste here: an empty Enter stores a 4-character value (Base64 of a bare colon), and the check in the notes below then returns `203`. Never set the variable through the Windows environment dialog with the raw token; it must be the Base64 form.
@@ -57,14 +57,17 @@ The agent uses Microsoft's Azure DevOps MCP server (`@azure-devops/mcp`, needs N
      claude mcp add <server-name> -s user -e ado_mcp_project="<project>" -- "%USERPROFILE%\.claude\mcp\<server-name>.cmd"
      ```
 
-   For Codex, the same server goes into `~/.codex/config.toml`:
+   For Codex, the same server goes into `~/.codex/config.toml`. Codex passes only a short allow-list of environment variables to an MCP server, so the token variable must be named in `env_vars`, otherwise the server starts without it and every call fails:
 
    ```toml
    [mcp_servers.<server-name>]
-   command = "<npx or the wrapper path>"
+   command = "npx.cmd"   # or the wrapper path for a further organization
    args = ["-y", "@azure-devops/mcp", "<organization>", "-d", "core", "work", "work-items", "-a", "pat"]  # omit for the wrapper
    env = { ado_mcp_project = "<project>" }
+   env_vars = ["<env-var>"]
    ```
+
+   Check it with `codex mcp list` and one board read (list the projects) in a Codex session.
 
 4. Close every terminal and agent window and start the agent from a new terminal. A new user environment variable is seen only by processes started after it was set; a session resumed from an old terminal starts the server without it, and the server exits with `Connection closed`.
 
@@ -87,7 +90,7 @@ Notes:
 
 ## Pull requests
 
-The server above has no pull request tools (`repositories` is not loaded, so every session stays light). Pull requests go through the Azure DevOps REST API with the same PAT (already Base64 `:<PAT>`, sent as `Authorization: Basic …`). Use only that variable, never search the environment for other tokens, and never print the token. Base URL: `https://dev.azure.com/<organization>/<project>/_apis/git/repositories/<repo>`.
+The server above has no pull request tools (`repositories` is not loaded, so every session stays light). Pull requests go through the Azure DevOps REST API with the same PAT (already Base64 `:<PAT>`, sent as `Authorization: Basic …`). Use only that variable, never search the environment for other tokens, and never print the token. Base URL: `https://dev.azure.com/<organization>/<project>/_apis/git/repositories/<repo>`, with spaces in the project name URL-encoded (`%20`).
 
 - Find the PR: `GET …/pullrequests?searchCriteria.sourceRefName=refs/heads/<branch>&searchCriteria.status=all&api-version=7.1`. Do this before creating one, so a branch never gets two.
 
@@ -120,7 +123,7 @@ Board items are entered by the agent, never copied by hand. `Work item types` in
 - Check the process template before the first write in a project: which work item types exist and which field holds the acceptance criteria. Record the answer in the profile's `Board` section.
 - Create parents first (top of the hierarchy down) and link each child to its parent in the same run.
 - After creating items, write the returned work item ids back where the draft lives: the ticket section `## PBI N (workItemId): title`, the plan's `Board:` line, or the task list of the change. Do this in the same session, before the numbers are lost.
-- Never delete or close board items unless the owner asks for that specific item.
+- `State` is set by people: never change it, and never delete or close a board item, unless the owner asks for that specific item. This holds after a merge too.
 
 ## Board, ticket and test plan carry the same criteria
 

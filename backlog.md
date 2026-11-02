@@ -20,7 +20,7 @@ The backlog `AGENTS.md` carries:
 Every label the module writes into items, so a non-English profile can map each one:
 
 - item fields: `Source`, `Discovered in`, `Priority`, `Pre-existing`, `Type`, `Blocked by`, `Answer`, `Files`, `Application ticket`, `Support case`, `Related`
-- plan blocks: `Remaining`, `Updated`, `Nothing left`, `Board`, `Code review`, `Dropped`
+- plan blocks: `Remaining`, `Updated`, `Nothing left`, `Owner`, `Waiting outside`, `Next (agent)`, `Board`, `Code review`, `Dropped`
 - board text (`azure-devops.md`): `User story`, `For testing`, `PBI criteria`, `Additional checks`, `Feature scope`, `Test order`, `Out of scope`
 - values: `user report` (a `Source` value)
 

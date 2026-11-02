@@ -20,7 +20,7 @@ Write findings in the profile's language. Each item stands on its own: the owner
 
 ## Branches
 
-The naming below is the default for every project. The workspace profile's `## Conventions` lists only what deviates from it, such as a legacy branch.
+The naming below is the default for every project. The workspace profile's `## Conventions` lists only what deviates from it, such as a legacy branch or a prefix the project uses differently, and wins wherever the two differ. With `Tracker: none` there is no id, and a work branch is `<type>/<slug>`.
 
 - Shared branches: `main`, `dev` and `release/<version>`. They never receive direct commits.
 - Every work branch belongs to a board work item: `<type>/<id>-<slug>`, for example `fix/1234-login-timeouts`. The type follows the work item type: Bug is `fix`; Product Backlog Item, User Story and Feature are `feature`; Task is `task`. The slug is a few lowercase words from the item's title, joined by hyphens.

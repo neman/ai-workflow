@@ -18,12 +18,10 @@ param(
 
 $pat = [Net.NetworkCredential]::new("", (Read-Host "PAT for $Name" -AsSecureString)).Password
 if ([string]::IsNullOrWhiteSpace($pat)) {
-    Write-Error "Nothing was entered; the variable was not changed. Run the script again and paste the token at the prompt."
-    exit 1
+    throw "Nothing was entered; the variable was not changed. Run the script again and paste the token at the prompt."
 }
 if ($pat -notmatch '^[A-Za-z0-9]+$') {
-    Write-Error "The token contains characters outside A-Z, a-z, 0-9; check that only the PAT was pasted. The variable was not changed."
-    exit 1
+    throw "The token contains characters outside A-Z, a-z, 0-9; check that only the PAT was pasted. The variable was not changed."
 }
 
 $encoded = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$pat"))

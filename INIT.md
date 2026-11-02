@@ -4,7 +4,7 @@ Instructions for an agent (Claude Code or Codex) asked to set up a workspace fol
 
 Idempotent: every step first checks whether its result already exists and then skips it, so running this on a finished workspace changes nothing. Never commit, push, or create remote repositories; those stay with the person.
 
-Run every step in order. Ask questions through the interactive choice tool, one call per round, recommended option first.
+Run every step in order. Ask questions through the interactive choice tool, recommended option first; it takes at most four questions per call, so a larger round is two consecutive calls.
 
 ## Step 1: Survey
 
@@ -22,7 +22,7 @@ Print the survey as a table `Item | Status (exists / missing / partial)`. Everyt
 
 ## Step 2: Questions
 
-Ask only what the survey did not answer. Defaults in parentheses are the recommended option.
+Ask only what the survey did not answer. On a workspace that already has both profiles, every answer comes from them and nothing is asked. Defaults in parentheses are the recommended option.
 
 1. Backlog folder name (`ai-backlog`, or the existing one).
 2. Who works here: names of the people who run agent sessions.
@@ -56,9 +56,13 @@ Claude Code reads `AGENTS.md` directly. If, in Step 8, a fresh session does not 
 
 ## Step 4: Workspace `AGENTS.md`
 
-Missing: create it from `.ai-workflow/templates/workspace-AGENTS.md` with `<backlog>` replaced by the backlog folder name and the Profile filled from Step 2. Put the branch naming deviations from Step 2 under `## Conventions`, or delete that section when there are none.
+The workspace folder is not under version control, so the backlog keeps a copy of this file at `<backlog>/docs/agents/workspace-AGENTS.md`; that copy is how a second person or machine gets the same profile.
+
+Missing: when the copy exists, create the workspace `AGENTS.md` from it. Otherwise create it from `.ai-workflow/templates/workspace-AGENTS.md` with `<backlog>` replaced by the backlog folder name and the Profile filled from Step 2; put the branch naming deviations from Step 2 under `## Conventions`, or delete that section when there are none.
 
 Existing: do not overwrite it. Compare it with the template, list what the template has and the file lacks (the pointer line, missing Profile fields), propose the addition and apply it only after the person confirms.
+
+In both cases, end with the copy identical to the workspace file: create or refresh `<backlog>/docs/agents/workspace-AGENTS.md`.
 
 ## Step 5: Code repositories
 
@@ -68,14 +72,14 @@ After confirmation, for each listed repository: insert `Read ../AGENTS.md before
 
 ## Step 6: Existing findings
 
-For each loose file the person chose to move in Step 2: read it, write one ticket per distinct problem in `<backlog>/tickets/active/` following `backlog.md` (language and labels from the profile; `Source`: session findings, with the file's date), move the original to `<backlog>/archive/`, and list the tickets created.
+For each loose file the person chose to move in Step 2: read it, write one ticket per distinct problem in `<backlog>/tickets/active/` following `backlog.md` (language and labels from the profile; `Source`: manual finding, naming the file and its date), move the original to `<backlog>/archive/`, and list the tickets created.
 
 ## Step 7: Azure DevOps
 
 Only when the tracker is Azure DevOps.
 
-1. `claude mcp get <server-name>`. When it is not registered: walk the person through `.ai-workflow/azure-devops.md` "Setup", with the values from Step 2 substituted into every command. Say explicitly when the terminal must be restarted and that the rest of this step continues in a new session.
-2. When the server answers (list projects through it, or `Invoke-WebRequest` from the Setup check returns `200`): read the project's process template and work item types (`GET https://dev.azure.com/<organization>/_apis/work/processes?api-version=7.1` and the process's work item types, or the server's project tools), find the acceptance criteria field, and fill `Work item types` and `Acceptance criteria field` in the backlog profile's `Board` section. Put the exact registration command used, with values, under `## Project notes`.
+1. `claude mcp get <server-name>`. When it is not registered: walk the person through `.ai-workflow/azure-devops.md` "Setup", with the values from Step 2 substituted into every command. Say explicitly when the terminal must be restarted and that the rest of this step continues in a new session. When Codex is installed (`codex --version`), also check that `~/.codex/config.toml` has the server with `env_vars` as in "Setup"; add it when missing.
+2. When the server answers (list projects through it, or `Invoke-WebRequest` from the Setup check returns `200`), and only while `Work item types` or `Acceptance criteria field` in the backlog profile's `Board` section is `TBD` or missing: read the project's process template and work item types (`GET https://dev.azure.com/<organization>/_apis/work/processes?api-version=7.1` and the process's work item types, or the server's project tools), find the acceptance criteria field, and fill both. Put the exact registration command used, with values, under `## Project notes` when it is not there yet.
 
 ## Step 8: Verify
 
@@ -84,6 +88,7 @@ All of the following must hold; fix what does not and re-check:
 - `<backlog>/.ai-workflow/backlog.md` exists and is not empty;
 - every relative link and path in the workspace `AGENTS.md` and the backlog `AGENTS.md` resolves to an existing file or folder;
 - no `<…>` placeholder is left in either `AGENTS.md` (`TBD` is allowed);
+- `<backlog>/docs/agents/workspace-AGENTS.md` is identical to the workspace `AGENTS.md`;
 - every code repository's `AGENTS.md` starts with the pointer line (unless the person declined in Step 5; say so in the report);
 - the status listing from `backlog.md` "Item status" runs without error in `<backlog>`;
 - a fresh agent session in `<backlog>`, asked "Where does a new ticket go, which fields must it have, and what do you do before writing to the board?", answers from `backlog.md` and the profile. In a fresh session in one code repository, "You found a bug outside your task: where do you write it and do you commit?" is answered with the backlog path and "the owner commits".
@@ -94,4 +99,4 @@ Three lists:
 
 - **Created or changed**: every file, by path.
 - **Skipped, already present**: every survey item that was `exists`.
-- **For the person**: commit the backlog (`git -C <backlog> add -A` then commit) and the code repositories' `AGENTS.md` on a branch of their choosing; create the backlog's remote repository and add it (`git remote add origin …`); create the PAT and restart the terminal, if Step 7 asked for it; run the two Step 8 questions themselves once.
+- **For the person**: commit the backlog (`git -C <backlog> add -A` then commit) and the code repositories' `AGENTS.md` on a branch of their choosing, merged into every long-lived branch (`main`, `dev`, `release/*`) so that no checkout is without the pointer; create the backlog's remote repository and add it (`git remote add origin …`); create the PAT and restart the terminal, if Step 7 asked for it; run the two Step 8 questions themselves once.

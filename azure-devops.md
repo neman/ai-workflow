@@ -100,7 +100,7 @@ Only when the owner asks for it; the branch must already be pushed. Show the own
 
 - `POST …/pullrequests?api-version=7.1` with `sourceRefName`, `targetRefName`, `title`, `description` and `workItemRefs: [{"id": "<workItemId>"}]` for every board item the branch implements. Send the body as UTF-8 bytes.
 - The source branch is named after the board item (`workspace.md` "Branches"); a branch without an id gets its work item and its name first. The target is the branch the work was cut from (`dev` or `main`, the profile's `Conventions` when they differ, or the integration branch of an epic from the topic's `AGENTS.md`).
-- Title and description in the profile's language, for non-technical readers, no attribution lines. The description says what changes for the user and names the board items as `#<id>`.
+- Title and description in English, whatever the profile's language: a pull request belongs to the code, like branch names and commit messages. Written for non-technical readers, no attribution lines. The description says what changes for the user and names the board items as `#<id>`.
 - Record the PR id where the work is written up (the ticket, the plan's `Board:` line or the review record).
 
 ### Review comments

@@ -128,6 +128,12 @@ git push
 
 Every other clone and project is then refreshed as above.
 
+- Committed before `git checkout main`: run `git branch rescue` at once so the commit is not lost, then `git checkout main` and `git cherry-pick rescue`.
+- `git push` rejected: someone pushed in the meantime; `git pull --rebase`, then `git push` again.
+- Pushing needs write access to this repository; without it, push to a fork and open a pull request.
+- Keep the change generic (no project names, people or dates); anything specific to one project goes in that project's `AGENTS.md` or `docs/agents/decisions.md`.
+- Until the change is pushed, `Update-AiWorkflow.ps1` skips that project rather than overwrite it.
+
 ## Check it works
 
 In a fresh agent session in the backlog folder:

@@ -47,7 +47,7 @@ The agent surveys the folder, asks a few questions (backlog name, who works here
 ```text
 my-project/
 ├── AGENTS.md                      ← workspace profile + pointer to the module
-├── api/AGENTS.md                  ← first line: Read ../AGENTS.md before starting.
+├── api/AGENTS.md                  ← starts with: Read ../AGENTS.md before starting (and what to do if it is missing)
 ├── web/AGENTS.md
 ├── worker/AGENTS.md
 └── ai-backlog/                    ← new git repository

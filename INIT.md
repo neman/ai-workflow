@@ -14,7 +14,7 @@ Collect, from the workspace folder:
 - the workspace `AGENTS.md`: exists or missing;
 - the backlog: a subfolder that contains `.ai-workflow/` (if several, stop and ask which); if none, note the candidate name `ai-backlog`;
 - inside the backlog, if found: `.ai-workflow/backlog.md` present and non-empty (an empty `.ai-workflow/` means the submodule is not initialised), `AGENTS.md`, `docs/agents/decisions.md`, the folders from `backlog.md` "Folders";
-- each code repository's `AGENTS.md`: missing, or present with / without the line `Read ../AGENTS.md before starting.` as its first line;
+- each code repository's `AGENTS.md`: missing; starting with the pointer paragraph from Step 5; starting with only its first sentence, `Read ../AGENTS.md before starting.` (partial); or without either;
 - loose Markdown files in the workspace folder (for example `*findings*.md`, `*notes*.md`): candidates for the backlog;
 - remote branches of each repository (`git -C <repo> branch -r`), to propose shared branches and to check the names against `.ai-workflow/workspace.md` "Branches".
 
@@ -66,9 +66,17 @@ In both cases, end with the copy identical to the workspace file: create or refr
 
 ## Step 5: Code repositories
 
-Show the list of repositories whose `AGENTS.md` lacks the line, and wait for confirmation: these files are under version control and the whole team sees them.
+Every code repository's `AGENTS.md` starts with the pointer paragraph, with `<backlog>` replaced by the backlog folder name:
 
-After confirmation, for each listed repository: insert `Read ../AGENTS.md before starting.` followed by a blank line as the first line of `AGENTS.md`, or create `AGENTS.md` with only that line when the file is missing. Report which branch each repository is on.
+```text
+Read ../AGENTS.md before starting. If it is missing, tell the person once and carry on with this file alone: they set up the workspace by cloning the `<backlog>` repository next to this one and following its `.ai-workflow/INIT.md`, or by copying its `docs/agents/workspace-AGENTS.md` to `../AGENTS.md`.
+```
+
+The second sentence is for a checkout whose workspace folder has no profile: a teammate who has not set up the workspace yet, or someone who works in the repository without the backlog. Without it the pointer leads nowhere and the agent drops the workspace rules without a word.
+
+Show the list of repositories whose `AGENTS.md` does not start with the paragraph, and wait for confirmation: these files are under version control and the whole team sees them.
+
+After confirmation, for each listed repository: when the first line is only `Read ../AGENTS.md before starting.` (the earlier form), replace that line with the paragraph; otherwise insert the paragraph followed by a blank line at the top of `AGENTS.md`, or create `AGENTS.md` with only the paragraph when the file is missing. Report which branch each repository is on.
 
 ## Step 6: Existing findings
 
@@ -89,7 +97,7 @@ All of the following must hold; fix what does not and re-check:
 - every relative link and path in the workspace `AGENTS.md` and the backlog `AGENTS.md` resolves to an existing file or folder;
 - no `<…>` placeholder is left in either `AGENTS.md` (`TBD` is allowed);
 - `<backlog>/docs/agents/workspace-AGENTS.md` is identical to the workspace `AGENTS.md`;
-- every code repository's `AGENTS.md` starts with the pointer line (unless the person declined in Step 5; say so in the report);
+- every code repository's `AGENTS.md` starts with the pointer paragraph from Step 5 (unless the person declined in Step 5; say so in the report);
 - the status listing from `backlog.md` "Item status" runs without error in `<backlog>`;
 - a fresh agent session in `<backlog>`, asked "Where does a new ticket go, which fields must it have, and what do you do before writing to the board?", answers from `backlog.md` and the profile. In a fresh session in one code repository, "You found a bug outside your task: where do you write it and do you commit?" is answered with the backlog path and "the owner commits".
 

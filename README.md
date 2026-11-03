@@ -16,7 +16,7 @@ What it does not do: it is not a task runner or a plugin, and it does not replac
 | `INIT.md` | agents | setting up or checking a workspace |
 | `skills/` | agents | a skill asks for the issue tracker, triage labels or domain docs |
 | `templates/` | `INIT.md` | the two profile files it fills in |
-| `scripts/` | people | `Set-AdoPat.ps1` stores the Azure DevOps token (`azure-devops.md` "Setup", step 2) |
+| `scripts/` | people | `Set-AdoPat.ps1` stores the Azure DevOps token (`azure-devops.md` "Setup", step 2); `Update-AiWorkflow.ps1` updates the module in every project at once ("Update or change the module") |
 
 ## Prerequisites
 
@@ -98,7 +98,17 @@ git push
 
 Teammates then pull the backlog and run `git submodule update --init` to check out the pinned commit.
 
-**Change the rules** in a normal clone of this repository, commit and push there, then do the two steps above in every project.
+**Every project at once**: `scripts/Update-AiWorkflow.ps1` searches a folder and all its subfolders for repositories with this module as a submodule, and in each one does both steps above (update, commit only the pin, push):
+
+```powershell
+.\scripts\Update-AiWorkflow.ps1 -Path C:\Code -WhatIf   # list the projects it would update
+.\scripts\Update-AiWorkflow.ps1 -Path C:\Code            # update, commit and push
+.\scripts\Update-AiWorkflow.ps1 -Path C:\Code -LocalOnly # only refresh this machine
+```
+
+It skips a project whose submodule has uncommitted changes or unpushed commits, and commits without pushing when the backlog branch is behind its upstream or already has other unpushed commits; the summary at the end says which and why.
+
+**Change the rules** in a normal clone of this repository, commit and push there, then update every project (the two steps above, or the script).
 
 **Change the rules from inside a project**, when a wrong rule shows up while working there. The submodule checkout is a detached HEAD, so a commit made there as-is hangs on no branch and is easy to lose. Put it on `main` first, then push from there and move the project's pin:
 

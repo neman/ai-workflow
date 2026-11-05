@@ -18,6 +18,7 @@ If `.ai-workflow/` is empty, run `git submodule update --init` first. Before cre
   - QA tests from the board: <yes | no>
 - Domain docs: <`CONTEXT.md` and `architecture/adr/`; language rules of the glossary when the language is not English>
 - Decisions: `docs/agents/decisions.md`
+- Backlog commits: <owner | agent, for closing reviews>
 
 ## Field map
 
@@ -31,6 +32,7 @@ If `.ai-workflow/` is empty, run `git submodule update --init` first. Before cre
 - Issue tracker: `.ai-workflow/skills/issue-tracker.md`
 - Triage labels: `.ai-workflow/skills/triage-labels.md`
 - Domain docs: `.ai-workflow/skills/domain.md`
+- Closing a review: `.ai-workflow/skills/close-review.md`
 
 ## Project notes
 

@@ -94,6 +94,14 @@ The server above has no pull request tools (`repositories` is not loaded, so eve
 
 - Find the PR: `GET …/pullrequests?searchCriteria.sourceRefName=refs/heads/<branch>&searchCriteria.status=all&api-version=7.1`. Do this before creating one, so a branch never gets two.
 
+### Reading a pull request
+
+Used when a review is closed (`backlog.md` "Code reviews", "Closing") and before posting comments.
+
+- `GET …/pullRequests/<id>?api-version=7.1`: `status` (`active`, `completed` = merged, `abandoned`), `closedDate`, `lastMergeCommit.commitId`, `lastMergeTargetCommit.commitId`, `reviewers[]` with `vote` (`10` approved, `5` approved with suggestions, `-5` waiting, `-10` rejected) and `closedBy`.
+- `GET …/pullRequests/<id>/threads?api-version=7.1`: every thread with its `status` (`active`, `fixed`, `wontFix`, `closed`, `byDesign`, `pending`; empty on system threads) and comments. The system threads say who approved and who completed the PR, with the time.
+- `GET …/pullRequests/<id>/iterations?api-version=7.1`: one entry per push with its source commit; a review names them as iterations.
+
 ### Creating a pull request
 
 Only when the owner asks for it; the branch must already be pushed. Show the owner the source branch, the target branch and the title, and create the PR after confirmation:

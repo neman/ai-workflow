@@ -21,6 +21,7 @@ Every label the module writes into items, so a non-English profile can map each 
 
 - item fields: `Source`, `Discovered in`, `Priority`, `Pre-existing`, `Type`, `Blocked by`, `Answer`, `Files`, `Application ticket`, `Support case`, `Related`
 - plan blocks: `Remaining`, `Updated`, `Nothing left`, `Owner`, `Waiting outside`, `Next (agent)`, `Board`, `Code review`, `Dropped`
+- review blocks: `Closing`
 - board text (`azure-devops.md`): `User story`, `For testing`, `PBI criteria`, `Additional checks`, `Feature scope`, `Test order`, `Out of scope`
 - values: `user report` (a `Source` value)
 
@@ -44,6 +45,8 @@ Every label the module writes into items, so a non-English profile can map each 
 The backlog is its own repository, not an application. Everything is committed and pushed straight to the default branch; there are no feature branches and no pull requests here, so never ask about a branch or suggest creating one. This is the one exception to the shared-branch reminder in `workspace.md`, which applies to the code repositories only.
 
 Commits and pushes are still the owner's call: commit only when asked, and include only the files from the current work. Other sessions edit and commit the same files in parallel, so read `git diff --cached` before every commit; a file you edited may already be staged by another session.
+
+The profile's `Backlog commits` field names the one standing exception. With `agent, for closing reviews` the agent commits and pushes the backlog itself after closing a review ([Code reviews](#code-reviews), "Closing"), with only the files that closing touched; with `owner`, the default, nothing is committed without being asked. A rejected push means someone pushed in the meantime: `git pull --rebase`, then push again; never force.
 
 ## Item status
 
@@ -189,6 +192,17 @@ A code review of a PR or a branch goes to `code-reviews/<repo>-pr-<id>-<slug>/` 
 - The review file carries the `Status` (`in-progress` while threads are open, `completed` when the PR is merged and every thread is resolved, `rejected` when the PR is abandoned) and the thread ids of every comment posted. A review that was only written up, not posted, says so.
 - A finding that outlives the PR — a pre-existing defect (`Pre-existing`), a follow-up the author will not do in this PR, a debt item — is a ticket in `tickets/active/` **when it is written**, with `Source` pointing to the review folder; the review keeps a one-line pointer to it. Findings the PR author fixes in the PR stay in the review only.
 - A review of a branch that belongs to an epic with its own plan may stay as a `Code review` section in that plan; do not duplicate it in `code-reviews/`. A standalone review never lives in `tickets/`.
+
+### Closing
+
+A review is closed by the agent, not left to the owner to ask for. At the start of every session in the backlog, and whenever the owner asks, list the reviews whose `Status` is `in-progress` and read each one's PR (`azure-devops.md` "Reading a pull request"). A PR that is still active is left alone and not mentioned. For a merged or abandoned one, in this order:
+
+- `Status` becomes `completed` (merged) or `rejected` (abandoned), with the date, the merge commit, who approved and who merged, and the state of every thread the review posted. A thread still `active` on a merged PR is named in the status line; the agent does not resolve it.
+- A `## Closing` section (label from the profile's field map) says how the PR ended, whether every condition the findings stated holds (a companion PR merged, a release order kept) and which findings outlive the PR. Each of those is a ticket by the rule above; one that has no ticket yet gets it now, and the review gets the pointer.
+- Every ticket and plan that names the PR gets the merge recorded (date, merge commit) and its checkbox for the PR ticked. Merging does not complete a ticket: that follows [Item status](#item-status).
+- When the profile's `Backlog commits` allows it, commit only those files and push ([Git](#git-this-folder)); otherwise leave them in the working tree and say so.
+
+The steps are a checklist in `skills/close-review.md`, written so that a subagent on a cheaper model can run them. Its report names the open threads, the unmet conditions and the findings that outlive the PR; the main session reads that report before the push, since those three are the only judgment in the task.
 
 ## Support cases
 

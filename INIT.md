@@ -31,6 +31,7 @@ Ask only what the survey did not answer. On a workspace that already has both pr
 5. Branch naming deviations: list the surveyed remote branches that do not match the convention in `workspace.md` "Branches", and ask whether each is a legacy branch to record under `## Conventions` or a stale branch to ignore. The convention itself is not asked; it is the same in every project.
 6. Tracker: Azure DevOps or none. If Azure DevOps: organization, project, server name (`azure-devops` for the first organization on this machine, `azure-devops-<org>` for further ones), environment variable name (`PERSONAL_ACCESS_TOKEN` for the first, `ADO_PAT_<ORG>` for further ones), and whether QA tests from the board (`yes` / `no` / `TBD`).
 7. For each loose Markdown file from the survey: move it into the backlog as ticket(s), or leave it.
+8. Backlog commits: `owner` (the default; the agent commits the backlog only when asked) or `agent, for closing reviews` (the agent commits and pushes the backlog itself after closing a code review, `backlog.md` "Git").
 
 ## Step 3: Backlog
 

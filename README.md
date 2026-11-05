@@ -76,7 +76,7 @@ git clone --recurse-submodules <backlog-url>
 git submodule update --init
 ```
 
-Put the clone next to the code repositories, and copy `docs/agents/workspace-AGENTS.md` from it into the workspace folder as `AGENTS.md` (the workspace folder is not under version control; the backlog keeps that copy). Then set up the board (previous section) if you write to it. Running `INIT.md` in the workspace folder does all of this: it reports what is missing on your machine and fills it in.
+Put the clone next to the code repositories, and copy `docs/agents/workspace-AGENTS.md` from it into the workspace folder as `AGENTS.md` (the workspace folder is not under version control; the backlog keeps that copy). Then set up the board (previous section) if you write to it. When the backlog profile says `Spec-driven changes: OpenSpec store <id>`, register the clone on your machine, from the backlog folder: `openspec store register "$(Get-Location)" --id <id>`; registration is per machine, and until it is done the `/opsx` commands stop with a `Declared in … config.yaml` error that names this fix. Running `INIT.md` in the workspace folder does all of this: it reports what is missing on your machine and fills it in.
 
 ## Update or change the module
 

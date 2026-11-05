@@ -15,7 +15,7 @@ Collect, from the workspace folder:
 - the backlog: a subfolder that contains `.ai-workflow/` (if several, stop and ask which); if none, note the candidate name `ai-backlog`;
 - inside the backlog, if found: `.ai-workflow/backlog.md` present and non-empty (an empty `.ai-workflow/` means the submodule is not initialised), `AGENTS.md`, `docs/agents/decisions.md`, the folders from `backlog.md` "Folders";
 - each code repository's `AGENTS.md`: missing; starting with the pointer paragraph from Step 5; starting with only its first sentence, `Read ../AGENTS.md before starting.` (partial); or without either;
-- OpenSpec: `openspec --version` installed or not; in the backlog, `.openspec-store/store.yaml` and `openspec/`; in each code repository, `openspec/` (a `config.yaml` with a `store:` line is the expected shape; `openspec/specs/` or `openspec/changes/` inside a code repository is planning in the wrong place, to report under Step 5);
+- OpenSpec: `openspec --version` installed or not; in the backlog, `.openspec-store/store.yaml` and `openspec/`, and whether that store is registered on this machine (`openspec store list` names its id; registration is per machine, so a cloned backlog carries `store.yaml` but is not registered until Step 3); in each code repository, `openspec/` (a `config.yaml` with a `store:` line is the expected shape; `openspec/specs/` or `openspec/changes/` inside a code repository is planning in the wrong place, to report under Step 5);
 - loose Markdown files in the workspace folder (for example `*findings*.md`, `*notes*.md`): candidates for the backlog;
 - remote branches of each repository (`git -C <repo> branch -r`), to propose shared branches and to check the names against `.ai-workflow/workspace.md` "Branches".
 
@@ -54,7 +54,7 @@ Then, inside `<backlog>`:
 - `AGENTS.md` from `.ai-workflow/templates/backlog-AGENTS.md`, every `<…>` filled from Step 2 (`TBD` allowed). When the language is English, the Field map body is the sentence "Labels are the canonical English names."; otherwise one row per concept from `backlog.md` "Concepts the field map covers", asked from the person in one round;
 - `README.md` with two sentences: what the folder is, and `git clone --recurse-submodules` (or `git submodule update --init` after a plain clone), plus a pointer to `.ai-workflow/README.md`;
 - `.gitignore` only if the person names files to exclude;
-- with `OpenSpec store <id>`: `openspec store register <backlog> --id <id> --yes` (creates `.openspec-store/store.yaml` and registers it on this machine; on a backlog that already has `openspec/`, the same command), `openspec/config.yaml` with `context` naming the profile's language, and the skill files from `openspec init --tools <tools>` run in the backlog root. Then `openspec doctor` is healthy.
+- with `OpenSpec store <id>`: `openspec store register <backlog> --id <id> --yes` whenever the survey found the store not registered on this machine (it creates `.openspec-store/store.yaml` when missing, and only registers an existing one otherwise), `openspec/config.yaml` with `context` naming the profile's language, and the skill files from `openspec init --tools <tools>` run in the backlog root. Then `openspec doctor` is healthy.
 
 Claude Code reads `AGENTS.md` directly. If, in Step 8, a fresh session does not report the file as loaded, add `CLAUDE.md` containing the single line `@AGENTS.md`.
 

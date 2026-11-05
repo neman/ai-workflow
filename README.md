@@ -13,6 +13,7 @@ What it does not do: it is not a task runner or a plugin, and it does not replac
 | `workspace.md` | agents | working in any code repository of the workspace |
 | `backlog.md` | agents | creating, moving or changing a backlog item |
 | `azure-devops.md` | agents, people | writing to the board; setting up the MCP server |
+| `openspec.md` | agents, people | the project plans work as [OpenSpec](https://github.com/Fission-AI/OpenSpec) changes: where they live (the backlog as an OpenSpec store), how a change relates to tickets and the board |
 | `INIT.md` | agents | setting up or checking a workspace |
 | `skills/` | agents | a skill asks for the issue tracker, triage labels or domain docs; a code review is closed after its PR is merged (`close-review.md`) |
 | `templates/` | `INIT.md` | the two profile files it fills in |
@@ -24,6 +25,7 @@ What it does not do: it is not a task runner or a plugin, and it does not replac
 - git: `git --version`
 - Claude Code (`claude --version`) and/or Codex (`codex --version`)
 - Node.js, only for the Azure DevOps board: `node --version`
+- OpenSpec CLI (`npm install -g @fission-ai/openspec`), only for spec-driven changes: `openspec --version`
 
 ## Set up a new project with an agent
 

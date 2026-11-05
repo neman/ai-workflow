@@ -16,6 +16,8 @@ The workspace `AGENTS.md` carries these fields; every rule below that says "from
 
 Everything discovered during a session that is not the task itself — a bug, technical debt, a refactoring idea, an architecture note, a testing or code-review finding, a support case — goes **outside the code repository**, into the backlog folder from the profile. `<backlog>/.ai-workflow/backlog.md` is the authority for its layout, statuses, required contents and file names, and `<backlog>/AGENTS.md` (the backlog profile) gives the labels to write: read both before creating or changing an item there, and never restate their rules in a repository file.
 
+The same holds for plans: a code repository holds no planning files. When the backlog profile says `Spec-driven changes: OpenSpec store <id>`, the repository carries only the OpenSpec pointer (`openspec/config.yaml` with `store: <id>`) and the `/opsx` skill files, and every change and spec is written in the backlog (`<backlog>/.ai-workflow/openspec.md`). Whether a piece of work is planned as a change or as a plan is the owner's choice per piece of work, made there.
+
 Write findings in the profile's language. Each item stands on its own: the owner turns it into a board item later, without the conversation. Separate what was verified by running code from what was only read in code, and keep the priority of an unconfirmed finding low.
 
 ## Branches

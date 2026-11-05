@@ -1,6 +1,6 @@
 # AGENTS.md
 
-If `.ai-workflow/` is empty, run `git submodule update --init` first. Before creating, moving or changing any item in this folder, read `.ai-workflow/backlog.md`. Before any board write, read `.ai-workflow/azure-devops.md`.
+If `.ai-workflow/` is empty, run `git submodule update --init` first. Before creating, moving or changing any item in this folder, read `.ai-workflow/backlog.md`. Before any board write, read `.ai-workflow/azure-devops.md`. Before creating or changing an OpenSpec change, read `.ai-workflow/openspec.md`.
 
 ## Profile
 
@@ -19,6 +19,7 @@ If `.ai-workflow/` is empty, run `git submodule update --init` first. Before cre
 - Domain docs: <`CONTEXT.md` and `architecture/adr/`; language rules of the glossary when the language is not English>
 - Decisions: `docs/agents/decisions.md`
 - Backlog commits: <owner | agent, for closing reviews>
+- Spec-driven changes: <OpenSpec store `<id>` | none>
 
 ## Field map
 

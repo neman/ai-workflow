@@ -15,6 +15,7 @@ Collect, from the workspace folder:
 - the backlog: a subfolder that contains `.ai-workflow/` (if several, stop and ask which); if none, note the candidate name `ai-backlog`;
 - inside the backlog, if found: `.ai-workflow/backlog.md` present and non-empty (an empty `.ai-workflow/` means the submodule is not initialised), `AGENTS.md`, `docs/agents/decisions.md`, the folders from `backlog.md` "Folders";
 - each code repository's `AGENTS.md`: missing; starting with the pointer paragraph from Step 5; starting with only its first sentence, `Read ../AGENTS.md before starting.` (partial); or without either;
+- OpenSpec: `openspec --version` installed or not; in the backlog, `.openspec-store/store.yaml` and `openspec/`; in each code repository, `openspec/` (a `config.yaml` with a `store:` line is the expected shape; `openspec/specs/` or `openspec/changes/` inside a code repository is planning in the wrong place, to report under Step 5);
 - loose Markdown files in the workspace folder (for example `*findings*.md`, `*notes*.md`): candidates for the backlog;
 - remote branches of each repository (`git -C <repo> branch -r`), to propose shared branches and to check the names against `.ai-workflow/workspace.md` "Branches".
 
@@ -32,6 +33,7 @@ Ask only what the survey did not answer. On a workspace that already has both pr
 6. Tracker: Azure DevOps or none. If Azure DevOps: organization, project, server name (`azure-devops` for the first organization on this machine, `azure-devops-<org>` for further ones), environment variable name (`PERSONAL_ACCESS_TOKEN` for the first, `ADO_PAT_<ORG>` for further ones), and whether QA tests from the board (`yes` / `no` / `TBD`).
 7. For each loose Markdown file from the survey: move it into the backlog as ticket(s), or leave it.
 8. Backlog commits: `owner` (the default; the agent commits the backlog only when asked) or `agent, for closing reviews` (the agent commits and pushes the backlog itself after closing a code review, `backlog.md` "Git").
+9. Spec-driven changes: `none` (the default; plans live in `plans/`) or `OpenSpec store <id>` (the backlog is an OpenSpec store and a piece of work may be planned as an OpenSpec change instead of a plan, chosen per piece of work, `openspec.md`). Asked only when `openspec --version` works or the survey found `openspec/` somewhere; the id is a kebab-case name, the backlog folder name by default.
 
 ## Step 3: Backlog
 
@@ -51,7 +53,8 @@ Then, inside `<backlog>`:
 - `docs/agents/decisions.md` with the single heading `# Decisions and rule history` and one sentence: dated events that led to a rule, newest first;
 - `AGENTS.md` from `.ai-workflow/templates/backlog-AGENTS.md`, every `<…>` filled from Step 2 (`TBD` allowed). When the language is English, the Field map body is the sentence "Labels are the canonical English names."; otherwise one row per concept from `backlog.md` "Concepts the field map covers", asked from the person in one round;
 - `README.md` with two sentences: what the folder is, and `git clone --recurse-submodules` (or `git submodule update --init` after a plain clone), plus a pointer to `.ai-workflow/README.md`;
-- `.gitignore` only if the person names files to exclude.
+- `.gitignore` only if the person names files to exclude;
+- with `OpenSpec store <id>`: `openspec store register <backlog> --id <id> --yes` (creates `.openspec-store/store.yaml` and registers it on this machine; on a backlog that already has `openspec/`, the same command), `openspec/config.yaml` with `context` naming the profile's language, and the skill files from `openspec init --tools <tools>` run in the backlog root. Then `openspec doctor` is healthy.
 
 Claude Code reads `AGENTS.md` directly. If, in Step 8, a fresh session does not report the file as loaded, add `CLAUDE.md` containing the single line `@AGENTS.md`.
 
@@ -79,6 +82,8 @@ Show the list of repositories whose `AGENTS.md` does not start with the paragrap
 
 After confirmation, for each listed repository: when the first line is only `Read ../AGENTS.md before starting.` (the earlier form), replace that line with the paragraph; otherwise insert the paragraph followed by a blank line at the top of `AGENTS.md`, or create `AGENTS.md` with only the paragraph when the file is missing. Report which branch each repository is on.
 
+With `OpenSpec store <id>`, the same confirmation list names each repository that lacks the pointer or holds planning files: after confirmation write `openspec/config.yaml` with the single line `store: <id>` and run `openspec init --tools <tools>` from the repository root (`openspec.md` "Setup"). A repository that holds `openspec/specs/` or `openspec/changes/` is not changed by this step: report it, and the person moves those into the backlog store (`openspec.md` "Where the files live").
+
 ## Step 6: Existing findings
 
 For each loose file the person chose to move in Step 2: read it, write one ticket per distinct problem in `<backlog>/tickets/active/` following `backlog.md` (language and labels from the profile; `Source`: manual finding, naming the file and its date), move the original to `<backlog>/archive/`, and list the tickets created.
@@ -100,6 +105,7 @@ All of the following must hold; fix what does not and re-check:
 - `<backlog>/docs/agents/workspace-AGENTS.md` is identical to the workspace `AGENTS.md`;
 - every code repository's `AGENTS.md` starts with the pointer paragraph from Step 5 (unless the person declined in Step 5; say so in the report);
 - the status listing from `backlog.md` "Item status" runs without error in `<backlog>`;
+- with `OpenSpec store <id>`: `openspec doctor` in `<backlog>` and in each code repository reports a healthy store, and `openspec list --store <id>` runs;
 - a fresh agent session in `<backlog>`, asked "Where does a new ticket go, which fields must it have, and what do you do before writing to the board?", answers from `backlog.md` and the profile. In a fresh session in one code repository, "You found a bug outside your task: where do you write it and do you commit?" is answered with the backlog path and "the owner commits".
 
 ## Step 9: Report

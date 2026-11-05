@@ -14,6 +14,7 @@ The backlog `AGENTS.md` carries:
 - `Board`: `Tracker`, `Organization`, `Project`, `MCP server`, `Work item types` (the hierarchy, top down), `Acceptance criteria field` (or `none`), `QA tests from the board: yes|no`. Board writes follow `azure-devops.md` when the tracker is Azure DevOps.
 - `Domain docs`: where the glossary and architecture decisions live, and the glossary's language rules.
 - `Decisions`: the file that records the dated history behind these rules for this project.
+- `Spec-driven changes`: `OpenSpec store <id>` when the project may plan work as OpenSpec changes kept in this backlog, beside plans (`openspec.md`), or `none`.
 
 ### Concepts the field map covers
 
@@ -39,6 +40,7 @@ Every label the module writes into items, so a non-English profile can map each 
 - `support/triage/<project>-<period>/`: email review packages with a message index and proposed classifications; cases and tickets are created only after owner review
 - `architecture/`: architecture decisions (`architecture/adr/`), diagrams and system improvement notes
 - `archive/`: obsolete or superseded material
+- `openspec/`: only with `Spec-driven changes: OpenSpec store <id>`: the project's OpenSpec changes and specs, ruled by `openspec.md`, not by this file
 
 ## Git (this folder)
 
@@ -76,7 +78,7 @@ The overview of the backlog is derived from the items, never from a hand-maintai
 
 ```powershell
 # every item and its status
-Get-ChildItem -Recurse -Filter *.md -Exclude README.md,AGENTS.md | Where-Object { $_.FullName -notmatch '[\\/]\.ai-workflow[\\/]' } |
+Get-ChildItem -Recurse -Filter *.md -Exclude README.md,AGENTS.md | Where-Object { $_.FullName -notmatch '[\\/](\.ai-workflow|openspec)[\\/]' } |
   Select-String -Pattern '(?<=^\|\s*Status\s*\|\s*|^-?\s*\*\*Status:\*\*\s*)`[a-z-]+`' -AllMatches |
   ForEach-Object { [PSCustomObject]@{ Status = ($_.Matches[0].Value -replace '`',''); Item = (Resolve-Path -Relative $_.Path) } } |
   Sort-Object Status, Item | Format-Table -AutoSize -Wrap
@@ -85,7 +87,7 @@ Get-ChildItem -Recurse -Filter *.md -Exclude README.md,AGENTS.md | Where-Object 
 Get-ChildItem -Recurse -Filter *.md | Where-Object { $_.FullName -notmatch '[\\/]\.ai-workflow[\\/]' } | Select-String -Pattern '^\s*- \[ \]'
 ```
 
-Run it from the backlog root. The `Where-Object` filter skips `.ai-workflow/`: this file shows the status shape and would otherwise appear in the listing.
+Run it from the backlog root. The `Where-Object` filter skips `.ai-workflow/`, where this file shows the status shape and would otherwise appear in the listing, and `openspec/` in the status listing, since OpenSpec changes carry no `Status` line and are listed by `openspec list` (`openspec.md` "Status"); their open `- [ ]` boxes still count as open work.
 
 An item is done when its status is `completed` **and** it has no open `- [ ]` checkboxes left; only then does a ticket move to `tickets/completed/`. A support case is done when its status is `resolved` or `rejected` and it has no open checkboxes left.
 
@@ -138,6 +140,8 @@ A ticket and a plan are different artifacts and both can exist for the same work
 When a plan is written, it links back to the ticket instead of restating the problem, and the ticket links to the plan. On completion the plan moves to `plans/completed/` and the ticket becomes `completed` and moves to `tickets/completed/`.
 
 Priority order for what to work on next is derived from `Priority`, whether the defect is pre-existing (`Pre-existing`) and dependencies between items, read across `tickets/` and `plans/` together. Neither folder is a priority queue.
+
+With `Spec-driven changes: OpenSpec store <id>` in the profile, the *how* of a piece of work may also be an OpenSpec change in `openspec/changes/` instead of a file in `plans/`: one or the other per piece of work, chosen by the owner, never both. The ticket rules above apply either way; `openspec.md` says when a change fits and how it relates to tickets and the board.
 
 ### Every plan opens with `Remaining`
 

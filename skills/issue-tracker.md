@@ -8,7 +8,7 @@ Issues for this project are Markdown tickets in `tickets/` and plans in `plans/`
 - Create `tickets/active/<kebab-case-name>.md`, in the profile's language, with no numeric prefix. When a topic needs more than one file, give it a subfolder `tickets/active/<topic>/`.
 - Include the contents `backlog.md` requires: date, affected project, `Source` / `Discovered in`, problem, proposed solution, `Priority`, acceptance criteria, and a `Status` in the backticked shape (``**Status:** `proposed` ``).
 - Separate what was verified by execution from what was only read in code.
-- A spec or multi-step work goes to `plans/proposed/<name>.md`. It opens with `Remaining` and links back to the ticket; the ticket links to the plan. Do not write a plan for a small change.
+- A spec or multi-step work goes to `plans/proposed/<name>.md`. It opens with `Remaining` and links back to the ticket; the ticket links to the plan. Do not write a plan for a small change. When the profile says `Spec-driven changes: OpenSpec store <id>`, that work may instead be an OpenSpec change, chosen by the owner per piece of work (`../openspec.md` "Plan or change"); the ticket then links to the change.
 - Several implementation issues for one feature are PBI sections inside one ticket (`## PBI N: title`), not one file per issue.
 
 ## When a skill says "fetch the relevant ticket"

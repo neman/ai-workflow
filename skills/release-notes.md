@@ -1,0 +1,19 @@
+# Release notes
+
+A checklist for the release notes of one production release: what goes out, what the release needs, and the message to the client. The record lives in `releases/` of the backlog (`../backlog.md` "Releases"); the REST calls are in `../azure-devops.md` "Reading a pull request". The language of every text written, and of the client message, comes from the profile (`AGENTS.md` of the backlog).
+
+## Steps
+
+1. **Ask the owner what is in production now**: the commit of each repository, from the last successful production pipeline run. Do not take it from a `prod` branch or a release tag without asking: they are moved by hand and can lag weeks behind the pipeline. A repository with no production run since the last release is left out.
+2. **List what goes out**: `git fetch`, then `git log --format="%h %ci %an | %s" <in production>..origin/<release branch>` in each repository. Each merge commit names its PR. For each PR, `GET …/pullRequests/<id>/workitems?api-version=7.1` gives its board items; a PR without one is named in the record as such.
+3. **Read each board item**: type, state, title, description, criteria, children and their comments. Note every step the item puts after the release (a one-off script, moving files, a data fix) and every related item that is not in this release (a data fix split into its own item still `New`).
+4. **Read the diff** between the two commits of each repository for what the release itself needs:
+   - database migrations;
+   - new configuration keys, and whether the production configuration or pipeline variables cover them;
+   - a release order between repositories: the frontend sends a parameter the deployed backend does not know, or the backend removes an endpoint the deployed frontend still calls;
+   - files that change nothing for users (agent instructions, tests only), which the client message leaves out.
+5. **Write the record** in `releases/<yyyy-mm-dd>-<release>/<folder name>.md`: the status, the table of repositories (in production, released, PRs), the board items, and the release section (order, migrations, configuration, steps after the release, related items left out). Name what was read in code and what was confirmed by the owner.
+6. **Write the client message** in its own file in the same folder, named in the profile's language. Start from the message of the previous release in `releases/`: the same greeting, order of sections, headings and sign-off. Write it in the client's terms, as the screens and menus name things; no PR or board ids, no commits, no file paths from the server. New features first, then fixes; a difference between sites or branches gets its own section. The steps the team runs itself around the release (a one-off script, moving files) are internal and stay out of the message; they belong in the record only. So do the team's own locations and systems the client never sees (an internal document folder beside the one the client uses).
+7. **Report to the owner**: the steps before and after the release, a promise the message makes about work not yet released (a fix split into its own item), and every board item whose state or criteria disagree with the merged PR (a `Done` item with unticked criteria, a `To Do` item whose PR is merged). Board states are set by people: name them, do not change them.
+
+The message is a draft. Send it, or save it as a draft in the mailbox, only when the owner asks. When the owner says it was sent, paste the text as sent into the file, record the date and recipients in the record and set its status to `completed`.

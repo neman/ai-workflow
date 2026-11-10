@@ -38,6 +38,7 @@ Every label the module writes into items, so a non-English profile can map each 
 - `support/active/<case>/`: open support cases, one folder per case with its fix script, requester reply and exported documents
 - `support/resolved/<case>/`: closed support cases kept for reference
 - `support/triage/<project>-<period>/`: email review packages with a message index and proposed classifications; cases and tickets are created only after owner review
+- `releases/<yyyy-mm-dd>-<release>/`: one folder per production release: what went out, what the release needed, and the message sent to the client
 - `architecture/`: architecture decisions (`architecture/adr/`), diagrams and system improvement notes
 - `docs/<topic>/`: optional, created when needed: reference material the work relies on and no other folder holds, such as third-party or external API documentation, or the agent decision log (`docs/agents/`). Each topic opens with a `README.md` naming its source, the date and version taken, and what was left out and why. No secrets; large binaries (screenshots, installers, full exports) stay outside the backlog and the README says where.
 - `archive/`: obsolete or superseded material
@@ -257,6 +258,15 @@ Each case includes:
 - a checklist until done: confirmations from the requester, production run, check in the application
 - the reply to the requester, in plain language without technical details, if one is sent
 - link to the ticket for the application defect, if there is one
+
+## Releases
+
+A production release gets a folder in `releases/`, named after the release date and the release branch without its prefix (`2026-03-14-orion` for `release/orion`). Inside it:
+
+- `<folder name>.md`: the record, carrying the status: `in-progress` while the release or its message is pending, `completed` when the release is in production and the message was sent. It holds the commit in production before and after the release for each repository, the PRs and board items, what the release needed (order, migrations, configuration, steps after the release), and the date and recipients of the message.
+- the client message in its own file, as sent. The next release's message starts from it, so keep the text exactly as it went out.
+
+The steps are a checklist in `skills/release-notes.md`.
 
 ## Email triage
 

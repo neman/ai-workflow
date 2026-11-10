@@ -34,6 +34,7 @@ If `.ai-workflow/` is empty, run `git submodule update --init` first. Before cre
 - Triage labels: `.ai-workflow/skills/triage-labels.md`
 - Domain docs: `.ai-workflow/skills/domain.md`
 - Closing a review: `.ai-workflow/skills/close-review.md`
+- Release notes: `.ai-workflow/skills/release-notes.md`
 
 ## Project notes
 

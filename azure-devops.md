@@ -74,7 +74,7 @@ The agent uses Microsoft's Azure DevOps MCP server (`@azure-devops/mcp`, needs N
 Notes:
 
 - `-d core work work-items` loads only the project and work item tools; `core` must stay in the list. Add `repositories` or `pipelines` only when they are needed.
-- Never put the PAT itself in `claude mcp add -e …`, in a config file, in the backlog or in a repository: that stores it in plain text. When it expires, repeat step 2 and step 4.
+- Never put the PAT itself in `claude mcp add -e …`, in a config file, in the backlog or in a repository: that stores it in plain text. When it expires, repeat step 2 and step 4. How commands and scripts may use it is in "Handling the token" below.
 - Check that the PAT works without the server (`200` = OK):
 
   ```powershell
@@ -88,9 +88,30 @@ Notes:
 - The check in the notes above returns `203` instead of `200`: the request was not authenticated and Azure DevOps answered with its sign-in page. Either the variable holds an empty token (set by hand; its Base64 value is then 4 characters long), or the PAT belongs to another organization, has expired, or the account is not a member of this organization. Repeat step 2.
 - If the organization is later connected to the company's Entra directory, `-a interactive` or `-a azcli` becomes possible and the PAT can be dropped.
 
+## Handling the token
+
+These rules apply to every command and script that uses the PAT: REST calls, git over HTTPS, and anything an agent writes for the task at hand.
+
+- **Never put the token on a command line.** Not as a git option (`git -c http.extraHeader="Authorization: Basic …"`), not as a `curl -H` or `-u` argument, not inside a URL (`https://<token>@dev.azure.com/…`), and not as an argument to a script. A command line is printed in full when the command fails, is captured by every log that records the run, and is visible in the process list while it runs.
+- **Read it inside the process that sends it.** A script reads the environment variable itself and builds the `Authorization` header in memory, as the check in "Setup" does. The value is never assigned to a variable that is later echoed, and never written to a file.
+- **Give it to git through the environment.** Git (2.31 or newer) takes configuration from environment variables, so the header never appears among the arguments:
+
+  ```powershell
+  $env:GIT_CONFIG_COUNT = '1'
+  $env:GIT_CONFIG_KEY_0 = 'http.extraHeader'
+  $env:GIT_CONFIG_VALUE_0 = "Authorization: Basic $([Environment]::GetEnvironmentVariable('<env-var>','User'))"
+  git clone https://dev.azure.com/<organization>/<project>/_git/<repo>
+  Remove-Item Env:GIT_CONFIG_COUNT, Env:GIT_CONFIG_KEY_0, Env:GIT_CONFIG_VALUE_0
+  ```
+
+  A script that starts git as a child process passes the same three variables in that child's environment only.
+- **Report the error, not the command.** When a call that carries the token fails, show the error text the tool returned (status code, git's last lines). Do not print the command, the request headers or the environment, and catch the failure so the runtime does not print them for you: an unhandled exception from a child process includes its full argument list.
+- **If the token shows up anyway** (in terminal output, a log file, a transcript, a commit, a ticket), tell the owner at once and say where. Delete the log file if it is yours to delete, do not repeat the value in the message, and recommend creating a new PAT and revoking the old one. Then fix what printed it before running it again.
+- **A clone or fetch can be cut off by the network.** Retry it up to three times. Before a retry, remove the folder an interrupted clone left behind: it looks like a repository and is not one.
+
 ## Pull requests
 
-The server above has no pull request tools (`repositories` is not loaded, so every session stays light). Pull requests go through the Azure DevOps REST API with the same PAT (already Base64 `:<PAT>`, sent as `Authorization: Basic …`). Use only that variable, never search the environment for other tokens, and never print the token. Base URL: `https://dev.azure.com/<organization>/<project>/_apis/git/repositories/<repo>`, with spaces in the project name URL-encoded (`%20`).
+The server above has no pull request tools (`repositories` is not loaded, so every session stays light). Pull requests go through the Azure DevOps REST API with the same PAT (already Base64 `:<PAT>`, sent as `Authorization: Basic …`). Use only that variable, never search the environment for other tokens, and never print the token ("Handling the token" above). Base URL: `https://dev.azure.com/<organization>/<project>/_apis/git/repositories/<repo>`, with spaces in the project name URL-encoded (`%20`).
 
 - Find the PR: `GET …/pullrequests?searchCriteria.sourceRefName=refs/heads/<branch>&searchCriteria.status=all&api-version=7.1`. Do this before creating one, so a branch never gets two.
 

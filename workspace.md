@@ -51,6 +51,10 @@ A commit message, in every repository of the project including the backlog, foll
 
 Every round of questions with options — grilling, brainstorming, any decision with alternatives — goes through the interactive choice tool (`AskUserQuestion` in Claude Code, the equivalent elsewhere): one entry per question, the recommended option first and marked `(Recommended)`. Facts and reasoning may precede the call as text; the questions themselves go into the tool. The tool takes at most four questions per call, so a larger round is two consecutive calls. This holds even when a skill prescribes a text format for its questions: typed answers to a numbered list are slow and get lost.
 
+## Tokens and other secrets
+
+A token, password or key never goes on a command line, into a URL, a file under version control, a backlog item or a message: a failed command prints its whole command line, and logs keep it. Read the secret from its environment variable inside the process that uses it, and report a failure by its error text, not by the command that failed. If a secret shows up in output, a log or a transcript, tell the owner at once and say where, without repeating it. The full rules, with the way to hand a token to git, are in `azure-devops.md` "Handling the token"; read them before writing a command or script that uses one.
+
 ## Tests
 
 Write business tests only: tests that check behavior a user can see. Cover a gap in the test harness with an assertion in a business test that fails because of the gap — for example, a document filed under the wrong year folder — rather than a test of the seeding or wiring itself.

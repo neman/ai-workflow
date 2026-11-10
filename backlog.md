@@ -39,6 +39,7 @@ Every label the module writes into items, so a non-English profile can map each 
 - `support/resolved/<case>/`: closed support cases kept for reference
 - `support/triage/<project>-<period>/`: email review packages with a message index and proposed classifications; cases and tickets are created only after owner review
 - `architecture/`: architecture decisions (`architecture/adr/`), diagrams and system improvement notes
+- `docs/<topic>/`: optional, created when needed: reference material the work relies on and no other folder holds, such as third-party or external API documentation, or the agent decision log (`docs/agents/`). Each topic opens with a `README.md` naming its source, the date and version taken, and what was left out and why. No secrets; large binaries (screenshots, installers, full exports) stay outside the backlog and the README says where.
 - `archive/`: obsolete or superseded material
 - `openspec/`: only with `Spec-driven changes: OpenSpec store <id>`: the project's OpenSpec changes and specs, ruled by `openspec.md`, not by this file
 

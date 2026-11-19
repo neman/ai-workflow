@@ -15,6 +15,7 @@ Collect, from the workspace folder:
 - the backlog: a subfolder that contains `.ai-workflow/` (if several, stop and ask which); if none, note the candidate name `ai-backlog`;
 - inside the backlog, if found: `.ai-workflow/backlog.md` present and non-empty (an empty `.ai-workflow/` means the submodule is not initialised), `AGENTS.md`, `docs/agents/decisions.md`, the folders from `backlog.md` "Folders";
 - each code repository's `AGENTS.md`: missing; starting with the pointer paragraph from Step 5; starting with only its first sentence, `Read ../AGENTS.md before starting.` (partial); or without either;
+- each code repository's `.claude/settings.json`: turns attribution off as in `.ai-workflow/workspace.md` "Agent attribution is off in every repository"; exists without those keys (partial); or missing;
 - OpenSpec: `openspec --version` installed or not; in the backlog, `.openspec-store/store.yaml` and `openspec/`, and whether that store is registered on this machine (`openspec store list` names its id; registration is per machine, so a cloned backlog carries `store.yaml` but is not registered until Step 3); in each code repository, `openspec/` (a `config.yaml` with a `store:` line is the expected shape; `openspec/specs/` or `openspec/changes/` inside a code repository is planning in the wrong place, to report under Step 5);
 - loose Markdown files in the workspace folder (for example `*findings*.md`, `*notes*.md`): candidates for the backlog;
 - remote branches of each repository (`git -C <repo> branch -r`), to propose shared branches and to check the names against `.ai-workflow/workspace.md` "Branches".
@@ -82,6 +83,8 @@ Show the list of repositories whose `AGENTS.md` does not start with the paragrap
 
 After confirmation, for each listed repository: when the first line is only `Read ../AGENTS.md before starting.` (the earlier form), replace that line with the paragraph; otherwise insert the paragraph followed by a blank line at the top of `AGENTS.md`, or create `AGENTS.md` with only the paragraph when the file is missing. Report which branch each repository is on.
 
+The same confirmation list names each repository whose `.claude/settings.json` is missing or does not turn attribution off (`workspace.md` "Agent attribution is off in every repository"). After confirmation, create the file with the content given there, or add its keys to the existing file without touching the rest.
+
 With `OpenSpec store <id>`, the same confirmation list names each repository that lacks the pointer or holds planning files: after confirmation write `openspec/config.yaml` with the single line `store: <id>` and run `openspec init --tools <tools>` from the repository root (`openspec.md` "Setup"). A repository that holds `openspec/specs/` or `openspec/changes/` is not changed by this step: report it, and the person moves those into the backlog store (`openspec.md` "Where the files live").
 
 ## Step 6: Existing findings
@@ -104,6 +107,7 @@ All of the following must hold; fix what does not and re-check:
 - no `<…>` placeholder is left in either `AGENTS.md` (`TBD` is allowed);
 - `<backlog>/docs/agents/workspace-AGENTS.md` is identical to the workspace `AGENTS.md`;
 - every code repository's `AGENTS.md` starts with the pointer paragraph from Step 5 (unless the person declined in Step 5; say so in the report);
+- every code repository's `.claude/settings.json` is valid JSON and turns attribution off (unless the person declined in Step 5; say so in the report);
 - the status listing from `backlog.md` "Item status" runs without error in `<backlog>`;
 - with `OpenSpec store <id>`: `openspec doctor` in `<backlog>` and in each code repository reports a healthy store, and `openspec list --store <id>` runs;
 - a fresh agent session in `<backlog>`, asked "Where does a new ticket go, which fields must it have, and what do you do before writing to the board?", answers from `backlog.md` and the profile. In a fresh session in one code repository, "You found a bug outside your task: where do you write it and do you commit?" is answered with the backlog path and "the owner commits".
@@ -114,4 +118,4 @@ Three lists:
 
 - **Created or changed**: every file, by path.
 - **Skipped, already present**: every survey item that was `exists`.
-- **For the person**: commit the backlog (`git -C <backlog> add -A` then commit) and the code repositories' `AGENTS.md` on a branch of their choosing, merged into every long-lived branch (`main`, `dev`, `release/*`) so that no checkout is without the pointer; create the backlog's remote repository and add it (`git remote add origin …`); create the PAT and restart the terminal, if Step 7 asked for it; run the two Step 8 questions themselves once.
+- **For the person**: commit the backlog (`git -C <backlog> add -A` then commit) and the code repositories' `AGENTS.md` and `.claude/settings.json` on a branch of their choosing, merged into every long-lived branch (`main`, `dev`, `release/*`) so that no checkout is without the pointer or the setting; create the backlog's remote repository and add it (`git remote add origin …`); create the PAT and restart the terminal, if Step 7 asked for it; run the two Step 8 questions themselves once.

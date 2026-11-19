@@ -47,6 +47,23 @@ A commit message, in every repository of the project including the backlog, foll
 - the imperative mood throughout, as if giving the codebase an order: "Make the login timeout configurable", not "Made …", "Makes …" or "This commit makes …";
 - the board item named as `#<id>` in the body when the branch carries one.
 
+### Agent attribution is off in every repository
+
+The rule above against attribution lines holds only if a setting enforces it: an agent that forgets it adds the trailer to every commit, and a merge that keeps the branch commits carries them into the shared branch for good. So every code repository of the workspace keeps, under version control, the setting that turns attribution off for everyone who works in it. For Claude Code it is `.claude/settings.json`:
+
+```json
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "attribution": { "commit": "", "pr": "", "sessionUrl": false },
+  "includeCoAuthoredBy": false
+}
+```
+
+When the file already exists, the keys go into it. `.claude/settings.local.json` stays personal and ignored by git. A setting is read when a session starts, so it applies from the next session on.
+
+- **At the start of a session** in a code repository, check that the file exists and turns attribution off. When it does not, add it to the working tree and tell the owner; it goes in with the owner's next commit on the work branch, like any other change.
+- **During the work**, before telling the owner that work is ready to commit or merge and before creating a pull request, check the branch's commits for attribution trailers: `git log <target>..HEAD --format='%h %s %(trailers:key=Co-Authored-By,valueonly)'`. Name every commit that carries one; the owner rewrites those commits before the push, or completes the pull request with a squash merge.
+
 ## Questions to the owner
 
 Every round of questions with options — grilling, brainstorming, any decision with alternatives — goes through the interactive choice tool (`AskUserQuestion` in Claude Code, the equivalent elsewhere): one entry per question, the recommended option first and marked `(Recommended)`. Facts and reasoning may precede the call as text; the questions themselves go into the tool. The tool takes at most four questions per call, so a larger round is two consecutive calls. This holds even when a skill prescribes a text format for its questions: typed answers to a numbered list are slow and get lost.

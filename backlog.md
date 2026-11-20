@@ -198,6 +198,7 @@ A code review of a PR or a branch goes to `code-reviews/<repo>-pr-<id>-<slug>/` 
 - The review file carries the `Status` (`in-progress` while threads are open, `completed` when the PR is merged and every thread is resolved, `rejected` when the PR is abandoned) and the thread ids of every comment posted. A review that was only written up, not posted, says so.
 - A finding that outlives the PR — a pre-existing defect (`Pre-existing`), a follow-up the author will not do in this PR, a debt item — is a ticket in `tickets/active/` **when it is written**, with `Source` pointing to the review folder; the review keeps a one-line pointer to it. Findings the PR author fixes in the PR stay in the review only.
 - A review of a branch that belongs to an epic with its own plan may stay as a `Code review` section in that plan; do not duplicate it in `code-reviews/`. A standalone review never lives in `tickets/`.
+- Every review session ends, in the conversation, with a verdict the owner can act on, written in the profile's language. That includes a session that only reads a new iteration. When nothing blocks the PR, say plainly that the owner can approve it. Otherwise, name what blocks it: an unresolved finding, a failing build or test, or a condition such as a companion PR. A condition that does not block the vote, such as the order of merges or when QA may start, is named next to the verdict, not in its place. The agent never casts the vote itself.
 
 ### Closing
 

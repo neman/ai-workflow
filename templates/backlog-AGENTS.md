@@ -20,6 +20,7 @@ If `.ai-workflow/` is empty, run `git submodule update --init` first. Before cre
 - Decisions: `docs/agents/decisions.md`
 - Backlog commits: <owner | agent, for closing reviews>
 - Spec-driven changes: <OpenSpec store `<id>` | none>
+- Browser testing: <allowed environment addresses, account, actions left out, secrets file and key for headless runs | pointer to the project doc with them | none>
 
 ## Field map
 
@@ -35,6 +36,7 @@ If `.ai-workflow/` is empty, run `git submodule update --init` first. Before cre
 - Domain docs: `.ai-workflow/skills/domain.md`
 - Closing a review: `.ai-workflow/skills/close-review.md`
 - Release notes: `.ai-workflow/skills/release-notes.md`
+- Browser testing: `.ai-workflow/skills/browser-testing.md`
 
 ## Project notes
 

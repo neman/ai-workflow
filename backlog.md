@@ -15,6 +15,7 @@ The backlog `AGENTS.md` carries:
 - `Domain docs`: where the glossary and architecture decisions live, and the glossary's language rules.
 - `Decisions`: the file that records the dated history behind these rules for this project.
 - `Spec-driven changes`: `OpenSpec store <id>` when the project may plan work as OpenSpec changes kept in this backlog, beside plans (`openspec.md`), or `none`.
+- `Browser testing`: what an agent testing through a browser needs (`skills/browser-testing.md`): the allowed test environment addresses, the account, actions left out, and for headless runs the secrets file and key name; or a pointer to the project doc that holds them; or `none`.
 
 ### Concepts the field map covers
 

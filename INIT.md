@@ -35,6 +35,7 @@ Ask only what the survey did not answer. On a workspace that already has both pr
 7. For each loose Markdown file from the survey: move it into the backlog as ticket(s), or leave it.
 8. Backlog commits: `owner` (the default; the agent commits the backlog only when asked) or `agent, for closing reviews` (the agent commits and pushes the backlog itself after closing a code review, `backlog.md` "Git").
 9. Spec-driven changes: `none` (the default; plans live in `plans/`) or `OpenSpec store <id>` (the backlog is an OpenSpec store and a piece of work may be planned as an OpenSpec change instead of a plan, chosen per piece of work, `openspec.md`). Asked only when `openspec --version` works or the survey found `openspec/` somewhere; the id is a kebab-case name, the backlog folder name by default.
+10. Browser testing: `none` (the default) or the test environment addresses an agent may open, the account it uses and any actions left out (`skills/browser-testing.md`); `TBD` when the project will test through a browser but the values are not known yet.
 
 ## Step 3: Backlog
 

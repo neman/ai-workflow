@@ -12,7 +12,7 @@ A subagent on a cheaper model drives the browser and writes the run record; the 
 
 **Playwright MCP in headless mode** is for the cases Chrome does not fit:
 
-- several runs at once, each in its own browser (in one Chrome the tabs and the session collide);
+- several runs at once, each in its own browser: one registered server per run (see "Headless setup"), since in one Chrome the tabs and the session collide;
 - a run without the owner, since headless signs in by itself;
 - a run while the owner works in their own Chrome, which headless leaves untouched;
 - a session that cannot use Claude in Chrome (API key, cloud provider, no browser).
@@ -46,6 +46,7 @@ claude mcp add playwright -s user -- npx -y @playwright/mcp@latest --headless --
 - `--isolated`: no cookies survive between sessions, so each run signs in.
 - The server runs sandboxed and cannot read environment variables: the secrets file is the only way to hand it a password.
 - The server loads when the agent starts: after registering it or editing the secrets file, restart the session.
+- One server drives one page: its tools act on the current tab and take no tab argument, and all subagents of a session share the server. Parallel runs need one registration per run (`playwright-1`, `playwright-2`, …, each with its own `--output-dir`), and each subagent is told which server's tools to use.
 
 ## Working with the page (headless)
 

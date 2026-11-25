@@ -162,6 +162,7 @@ Only when the owner asks for it; the branch must already be pushed. Show the own
 When the owner asks for review comments on a PR "in their name":
 
 - Read the existing threads first (`Get-AdoPullRequest.ps1 -Threads`) so the same finding is not posted twice.
+- Post only findings about the diff (`backlog.md` "Code reviews"). A finding in a file outside the PR's changes, or about code the PR does not touch, goes to a ticket, not to a PR-level thread.
 - Write each comment to its own Markdown file, then post it with `Add-AdoPullRequestComment.ps1 -BodyFile <file.md>` and one of:
   - `-FilePath <path> -Line <n> [-EndLine <n>] [-Iteration <n>]`: a new thread on a file line. Line numbers are those of the file at the reviewed iteration's source commit; the script uses the latest iteration unless `-Iteration` names the reviewed one, and prints the iteration and commit it anchored on.
   - `-ThreadId <id> [-Status active]`: a reply in an existing thread, for example when a fix is incomplete and the thread is reopened.

@@ -13,7 +13,7 @@ Issues for this project are Markdown tickets in `tickets/` and plans in `plans/`
 
 ## When a skill says "fetch the relevant ticket"
 
-Read the file at the path the user passes. Given a board work item id, grep `tickets/` and `plans/` for it; read it from the board through the MCP server only if no file has it.
+Read the file at the path the user passes. Given a board work item id, grep `tickets/` and `plans/` for it; read it from the board with `../scripts/Get-AdoWorkItem.ps1` (`../azure-devops.md` "MCP or REST") only if no file has it.
 
 ## The board
 

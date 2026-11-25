@@ -11,7 +11,7 @@ A checklist for closing the record of a code review in `code-reviews/` once its 
 ## Steps
 
 1. **Read the review file** whole. Note the thread ids it posted, every condition its findings state (a companion PR, a release order, a follow-up the author promised) and every ticket or plan it links.
-2. **Read the PR**: the PR itself, its threads and its iterations (`azure-devops.md` "Reading a pull request"). Stop and report when `status` is still `active`: nothing is written.
+2. **Read the PR** with `../scripts/Get-AdoPullRequest.ps1 -Id <id> -Iterations -Threads -System -Brief` (`../azure-devops.md` "Reading a pull request"): the PR, its iterations, its review threads and the system threads that say who approved and who completed it. Stop and report when `status` is still `active`: nothing is written.
 3. **Check every condition** from step 1 against the board and the other repositories: a companion PR is read the same way; a follow-up is looked up in `tickets/`. Each condition is `holds` or `does not hold`, with the evidence (PR id and state, commit).
 4. **List what outlives the PR**: a finding marked pre-existing, a follow-up the author did not do in this PR, a debt item, an unresolved thread on a merged PR. For each, grep `tickets/` for its file path or symbol: `has ticket <path>` or `no ticket`.
 5. **Write the status line**: `completed` when merged, `rejected` when abandoned; then the date, the merge commit (`lastMergeCommit`), who approved (reviewers with vote `10`, from the system thread with the time), who completed the PR and when, and the state of each thread from step 1. A thread still `active` on a merged PR is named here as open; do not resolve it.

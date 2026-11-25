@@ -1,6 +1,6 @@
 # Azure DevOps board
 
-Rules for a backlog whose profile says `Tracker: Azure DevOps`. Read this before any board write (creating or changing work items, creating pull requests or posting review comments) and before setting up the MCP server. Values marked `<…>` come from the profile's `Board` section or from the person setting things up.
+Rules for a backlog whose profile says `Tracker: Azure DevOps`. Read this before reading or writing the board or a pull request (work items, review threads, creating a pull request, posting review comments) and before setting up the MCP server. Values marked `<…>` come from the profile's `Board` section or from the person setting things up.
 
 ## Setup
 
@@ -73,7 +73,7 @@ The agent uses Microsoft's Azure DevOps MCP server (`@azure-devops/mcp`, needs N
 
 Notes:
 
-- `-d core work work-items` loads only the project and work item tools; `core` must stay in the list. Add `repositories` or `pipelines` only when they are needed.
+- `-d core work work-items` loads only the project and work item tools; `core` must stay in the list. Pull requests go through the scripts, not the `repositories` domain ("MCP or REST" below); add `pipelines` only when a rule needs it.
 - Never put the PAT itself in `claude mcp add -e …`, in a config file, in the backlog or in a repository: that stores it in plain text. When it expires, repeat step 2 and step 4. How commands and scripts may use it is in "Handling the token" below.
 - Check that the PAT works without the server (`200` = OK):
 
@@ -109,15 +109,40 @@ These rules apply to every command and script that uses the PAT: REST calls, git
 - **If the token shows up anyway** (in terminal output, a log file, a transcript, a commit, a ticket), tell the owner at once and say where. Delete the log file if it is yours to delete, do not repeat the value in the message, and recommend creating a new PAT and revoking the old one. Then fix what printed it before running it again.
 - **A clone or fetch can be cut off by the network.** Retry it up to three times. Before a retry, remove the folder an interrupted clone left behind: it looks like a repository and is not one.
 
+## MCP or REST
+
+Whatever a call returns stays in the session's context for every later turn, so the route is chosen by what comes back:
+
+- **Reading** work items and pull requests: the scripts below. They print only what a task needs, a fifth to a seventh of the raw response with the command included. When a work item is read through the MCP server instead, pass `fields` on `wit_work_item`; `get_batch` without `fields` returns neither the description nor the criteria.
+- **Board writes** (creating and changing work items, their comments): the MCP server. It handles Markdown fields and encoding, and REST costs about as much here, mostly in the tokens the agent writes.
+- **Pull requests**, reading and commenting: the scripts. The MCP `repositories` domain stays out of the registration: its pull request responses are two to three times the scripts' output and its tools carry the largest schemas.
+
+Print only the fields the task needs; a whole REST response (`ConvertTo-Json`) costs many times more and adds nothing.
+
+### Scripts
+
+In `scripts/`, PowerShell 7. Each takes `-Organization` and `-Project` from the profile, reads the token from `-TokenVariable` (default `PERSONAL_ACCESS_TOKEN`) as "Handling the token" requires, and prints `ERR: <status and message>` on failure. `Get-Help <script> -Full` lists every parameter.
+
+| Script | Prints or does |
+|---|---|
+| `Get-AdoWorkItem.ps1 -Id 1234,1235 [-Comments] [-Fields …]` | type, state, title, assignee, iteration, parent, tags, description, criteria or repro steps; `-Fields` names the profile's `Acceptance criteria field` when the process calls it differently |
+| `Get-AdoPullRequest.ps1 -Repository <repo> -Id <id> [-Iterations] [-Threads] [-System] [-Brief]` | state, branches, source, target and merge commits, reviewers with votes, work items, description; iterations; review threads with every comment; `-System` adds the system threads (votes, auto-complete, completion) |
+| `Get-AdoPullRequest.ps1 -Repository <repo> -Branch <branch>` | every pull request of that source branch, any status |
+| `Add-AdoPullRequestComment.ps1 -Repository <repo> -Id <id> -BodyFile <file.md> …` | posts a comment from a UTF-8 file and reads it back ("Review comments") |
+
+```powershell
+& "<backlog>\.ai-workflow\scripts\Get-AdoPullRequest.ps1" -Organization <organization> -Project "<project>" -Repository <repo> -Id <id> -Iterations -Threads
+```
+
 ## Pull requests
 
-The server above has no pull request tools (`repositories` is not loaded, so every session stays light). Pull requests go through the Azure DevOps REST API with the same PAT (already Base64 `:<PAT>`, sent as `Authorization: Basic …`). Use only that variable, never search the environment for other tokens, and never print the token ("Handling the token" above). Base URL: `https://dev.azure.com/<organization>/<project>/_apis/git/repositories/<repo>`, with spaces in the project name URL-encoded (`%20`).
+Pull requests go through the REST API, read and commented on with the scripts above. The calls below are what the scripts do, and the reference for anything they do not cover, such as creating a pull request. The same PAT (already Base64 `:<PAT>`) goes in the `Authorization: Basic …` header; use only that variable and follow "Handling the token" above. Base URL: `https://dev.azure.com/<organization>/<project>/_apis/git/repositories/<repo>`, with spaces in the project name URL-encoded (`%20`).
 
-- Find the PR: `GET …/pullrequests?searchCriteria.sourceRefName=refs/heads/<branch>&searchCriteria.status=all&api-version=7.1`. Do this before creating one, so a branch never gets two.
+- Find the PR (`Get-AdoPullRequest.ps1 -Branch`): `GET …/pullrequests?searchCriteria.sourceRefName=refs/heads/<branch>&searchCriteria.status=all&api-version=7.1`. Do this before creating one, so a branch never gets two.
 
 ### Reading a pull request
 
-Used when a review is closed (`backlog.md` "Code reviews", "Closing") and before posting comments.
+Used when a review is closed (`backlog.md` "Code reviews", "Closing") and before posting comments: `Get-AdoPullRequest.ps1 -Id <id> -Iterations -Threads`, with `-System` when closing a review. Behind it:
 
 - `GET …/pullRequests/<id>?api-version=7.1`: `status` (`active`, `completed` = merged, `abandoned`), `closedDate`, `lastMergeCommit.commitId`, `lastMergeTargetCommit.commitId`, `reviewers[]` with `vote` (`10` approved, `5` approved with suggestions, `-5` waiting, `-10` rejected) and `closedBy`.
 - `GET …/pullRequests/<id>/threads?api-version=7.1`: every thread with its `status` (`active`, `fixed`, `wontFix`, `closed`, `byDesign`, `pending`; empty on system threads) and comments. The system threads say who approved and who completed the PR, with the time.
@@ -136,9 +161,13 @@ Only when the owner asks for it; the branch must already be pushed. Show the own
 
 When the owner asks for review comments on a PR "in their name":
 
-- Find the PR as above.
-- Read existing threads first (`GET …/pullRequests/<id>/threads?api-version=7.1`) so the same finding is not posted twice.
-- Post: `POST …/pullRequests/<id>/threads?api-version=7.1` with `threadContext.filePath` (leading `/`) and `rightFileStart` / `rightFileEnd` line numbers from the PR's source commit. Send the body as UTF-8 bytes, otherwise non-ASCII characters are garbled.
+- Read the existing threads first (`Get-AdoPullRequest.ps1 -Threads`) so the same finding is not posted twice.
+- Write each comment to its own Markdown file, then post it with `Add-AdoPullRequestComment.ps1 -BodyFile <file.md>` and one of:
+  - `-FilePath <path> -Line <n> [-EndLine <n>] [-Iteration <n>]`: a new thread on a file line. Line numbers are those of the file at the reviewed iteration's source commit; the script uses the latest iteration unless `-Iteration` names the reviewed one, and prints the iteration and commit it anchored on.
+  - `-ThreadId <id> [-Status active]`: a reply in an existing thread, for example when a fix is incomplete and the thread is reopened.
+  - neither: a new thread on the PR as a whole.
+- The script reads the thread back and prints its id, comment id, status and author, or fails when the stored text differs from the file. `-WhatIf` prints the request without posting.
+- Behind it: `POST …/pullRequests/<id>/threads?api-version=7.1` with `threadContext.filePath` (leading `/`) and `rightFileStart` / `rightFileEnd`, and `pullRequestThreadContext` with the file's `changeTrackingId` from `GET …/iterations/<n>/changes` and both `iterationContext` comparing iterations set to `n`, which anchors the line on the diff against the common base so it stays in place when later iterations arrive ([REST reference](https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-request-threads/create?view=azure-devops-rest-7.1)). The body goes as UTF-8 bytes, otherwise non-ASCII characters are garbled.
 - Comments are in the profile's language. Record the PR and thread ids where the review is written up (the plan's `Code review` section, the review record or the ticket).
 
 ## Entering items

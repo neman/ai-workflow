@@ -1,6 +1,6 @@
 # AGENTS.md
 
-If `.ai-workflow/` is empty, run `git submodule update --init` first. Before creating, moving or changing any item in this folder, read `.ai-workflow/backlog.md`. Before any board write, read `.ai-workflow/azure-devops.md`. Before creating or changing an OpenSpec change, read `.ai-workflow/openspec.md`.
+If `.ai-workflow/` is empty, run `git submodule update --init` first. Before creating, moving or changing any item in this folder, read `.ai-workflow/backlog.md`. Before reading or writing the board or a pull request, read `.ai-workflow/azure-devops.md`. Before creating or changing an OpenSpec change, read `.ai-workflow/openspec.md`.
 
 ## Profile
 

@@ -12,12 +12,12 @@ What it does not do: it is not a task runner or a plugin, and it does not replac
 |---|---|---|
 | `workspace.md` | agents | working in any code repository of the workspace |
 | `backlog.md` | agents | creating, moving or changing a backlog item |
-| `azure-devops.md` | agents, people | writing to the board; setting up the MCP server; before a command or script uses the token ("Handling the token") |
+| `azure-devops.md` | agents, people | reading or writing the board or a pull request ("MCP or REST"); setting up the MCP server; before a command or script uses the token ("Handling the token") |
 | `openspec.md` | agents, people | the project plans work as [OpenSpec](https://github.com/Fission-AI/OpenSpec) changes: where they live (the backlog as an OpenSpec store), how a change relates to tickets and the board |
 | `INIT.md` | agents | setting up or checking a workspace |
 | `skills/` | agents | a skill asks for the issue tracker, triage labels or domain docs; a code review is closed after its PR is merged (`close-review.md`); release notes and the client message are written for a production release (`release-notes.md`); a test plan or checks are run through a browser (`browser-testing.md`) |
 | `templates/` | `INIT.md` | the two profile files it fills in |
-| `scripts/` | people | `Set-AdoPat.ps1` stores the Azure DevOps token (`azure-devops.md` "Setup", step 2); `Update-AiWorkflow.ps1` updates the module in every project at once ("Update or change the module") |
+| `scripts/` | people, agents | `Set-AdoPat.ps1` stores the Azure DevOps token (`azure-devops.md` "Setup", step 2); `Update-AiWorkflow.ps1` updates the module in every project at once ("Update or change the module"); `Get-AdoWorkItem.ps1`, `Get-AdoPullRequest.ps1` and `Add-AdoPullRequestComment.ps1` (with `AdoRest.psm1`) read work items and pull requests and post review comments (`azure-devops.md` "MCP or REST") |
 
 ## Prerequisites
 

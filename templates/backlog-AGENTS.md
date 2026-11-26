@@ -1,6 +1,6 @@
 # AGENTS.md
 
-If `.ai-workflow/` is empty, run `git submodule update --init` first. Before creating, moving or changing any item in this folder, read `.ai-workflow/backlog.md`. Before reading or writing the board or a pull request, read `.ai-workflow/azure-devops.md`. Before creating or changing an OpenSpec change, read `.ai-workflow/openspec.md`.
+If `.ai-workflow/` is empty, run `git submodule update --init` first. Before creating, moving or changing any item in this folder, read `.ai-workflow/backlog.md`. Before reading or writing the board, a pull request or a pipeline, read `.ai-workflow/azure-devops.md`. Before creating or changing an OpenSpec change, read `.ai-workflow/openspec.md`.
 
 ## Profile
 
@@ -16,6 +16,7 @@ If `.ai-workflow/` is empty, run `git submodule update --init` first. Before cre
   - Work item types: <e.g. Epic → Feature → PBI → Task>
   - Acceptance criteria field: <e.g. `Microsoft.VSTS.Common.AcceptanceCriteria` | none>
   - QA tests from the board: <yes | no>
+  - Pipelines: <yes | no> (the agent registers, configures and runs pipelines; `yes` needs the pipeline scopes on the PAT)
 - Domain docs: <`CONTEXT.md` and `architecture/adr/`; language rules of the glossary when the language is not English>
 - Decisions: `docs/agents/decisions.md`
 - Backlog commits: <owner | agent, for closing reviews>

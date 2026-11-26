@@ -1,18 +1,25 @@
 # Azure DevOps board
 
-Rules for a backlog whose profile says `Tracker: Azure DevOps`. Read this before reading or writing the board or a pull request (work items, review threads, creating a pull request, posting review comments) and before setting up the MCP server. Values marked `<…>` come from the profile's `Board` section or from the person setting things up.
+Rules for a backlog whose profile says `Tracker: Azure DevOps`. Read this before reading or writing the board or a pull request (work items, review threads, creating a pull request, posting review comments), before writing, registering or running a pipeline or changing a variable group or environment, and before setting up the MCP server. Values marked `<…>` come from the profile's `Board` section or from the person setting things up.
 
 ## Setup
 
 The agent uses Microsoft's Azure DevOps MCP server (`@azure-devops/mcp`, needs Node.js) with a personal access token (PAT). Interactive sign-in works only when the organization is connected to the Microsoft Entra directory that the signed-in account belongs to; an organization whose members sign in with personal accounts rejects it (`TF400813: … is not authorized`, or `invalid_scope`), and the Azure CLI token is rejected the same way. A PAT works in both cases, so it is the default.
 
-1. Create a PAT at `https://dev.azure.com/<organization>/_usersSettings/tokens`, signed in with the account you use for the board. Tick exactly these scopes (custom defined):
+1. Create a PAT at `https://dev.azure.com/<organization>/_usersSettings/tokens`, signed in with the account you use for the board. Choose "Custom defined" and tick these scopes:
 
    - [ ] **Work Items: Read & Write**: reading and entering board items through the MCP server.
    - [ ] **Project and Team: Read**: listing projects, teams and iterations; the server fails to start without it.
    - [ ] **Code: Read & Write**: pull requests through the REST API: creating them, posting review comments, linking work items. `Read` alone lists PRs but every write returns `401`.
 
-   Anything else (Build, Release, Packaging) stays unticked until a rule here needs it. When a scope is added later, the token must be regenerated and stored again (step 2).
+   Only when the profile's `Board` section says `Pipelines: yes` (the agent registers, configures and runs pipelines, "Pipelines" below), also:
+
+   - [ ] **Build: Read & execute**: registering a YAML pipeline, starting a run, reading runs and their logs.
+   - [ ] **Variable Groups: Read, create & manage**: creating and changing a variable group.
+   - [ ] **Environment: Read & manage**: reading environments, their resources and checks.
+   - [ ] **Pipeline Resources: Use & manage**: allowing a pipeline to use an environment or a variable group. Without it, the owner clicks "Permit" on the first run.
+
+   These four hold for every environment of the project, production included; "Pipelines" says what the agent may do with them. Anything else (Release, Packaging) stays unticked until a rule here needs it. When a scope is added later, the token must be regenerated and stored again (step 2); a REST call reads the new value at once, the MCP server only after step 4.
 2. Store it Base64-encoded (`:<PAT>`) in a user environment variable, `<env-var>`. The name is `PERSONAL_ACCESS_TOKEN` for the first organization on this machine and `ADO_PAT_<ORG>` for every further one (`ADO_PAT_CONTOSO` for the organization `contoso`); the profile's `MCP server` line records which one the backlog uses. Either way below works; the script is the default because it refuses an empty or malformed paste.
 
    **With the script.** Run it from this module in PowerShell (5.1 or 7), with the variable name as its only argument. Nothing in the script is edited:
@@ -73,7 +80,7 @@ The agent uses Microsoft's Azure DevOps MCP server (`@azure-devops/mcp`, needs N
 
 Notes:
 
-- `-d core work work-items` loads only the project and work item tools; `core` must stay in the list. Pull requests go through the scripts, not the `repositories` domain ("MCP or REST" below); add `pipelines` only when a rule needs it.
+- `-d core work work-items` loads only the project and work item tools; `core` must stay in the list. Pull requests go through the scripts, not the `repositories` domain ("MCP or REST" below); pipelines go through REST as well ("Pipelines" below), so the `pipelines` domain stays out too.
 - Never put the PAT itself in `claude mcp add -e …`, in a config file, in the backlog or in a repository: that stores it in plain text. When it expires, repeat step 2 and step 4. How commands and scripts may use it is in "Handling the token" below.
 - Check that the PAT works without the server (`200` = OK):
 
@@ -170,6 +177,51 @@ When the owner asks for review comments on a PR "in their name":
 - The script reads the thread back and prints its id, comment id, status and author, or fails when the stored text differs from the file. `-WhatIf` prints the request without posting.
 - Behind it: `POST …/pullRequests/<id>/threads?api-version=7.1` with `threadContext.filePath` (leading `/`) and `rightFileStart` / `rightFileEnd`, and `pullRequestThreadContext` with the file's `changeTrackingId` from `GET …/iterations/<n>/changes` and both `iterationContext` comparing iterations set to `n`, which anchors the line on the diff against the common base so it stays in place when later iterations arrive ([REST reference](https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-request-threads/create?view=azure-devops-rest-7.1)). The body goes as UTF-8 bytes, otherwise non-ASCII characters are garbled.
 - Comments are in the profile's language. Record the PR and thread ids where the review is written up (the plan's `Code review` section, the review record or the ticket).
+
+## Pipelines
+
+Applies when the profile's `Board` section says `Pipelines: yes` and the PAT carries the pipeline scopes from "Setup". With `Pipelines: no` or a token without them, the agent writes the YAML and lists what the owner sets up by hand. Pipelines, variable groups and environments go through the REST API with the same token and the same "Handling the token" rules. Base URL: `https://dev.azure.com/<organization>/<project>/_apis`; variable groups are written at the organization level, `https://dev.azure.com/<organization>/_apis`.
+
+### What the agent does and does not do
+
+- **A write is shown first**, as for the board: pipeline name, folder and YAML path; variable group and variable names, with which are secret; which pipeline gets which permission. Write after the owner confirms that list; the confirmation covers only that list.
+- **A run is started only when the owner confirms that run**: the pipeline, the branch and the stages it deploys. A deploy changes a server other people use. The agent never approves a run, its own included; approvals belong to the people the environment's check names.
+- **Secret values stay with the owner.** The agent creates a secret variable empty and marked secret; the owner types the value in Pipelines → Library. The agent never reads, writes or prints a secret value, and prints non-secret values only when the task needs them: a connection string without a password is still an address. Report a variable as its name, whether it is secret, and whether it is empty.
+- **Only the resources the owner named.** The scopes reach every environment, production included; the agent touches only the pipeline, group and environment of the task.
+- **Ids go where the work is written up**: pipeline, variable group and environment ids, beside the board item.
+
+### Writing a pipeline
+
+- **Copy the project's closest pipeline.** List the existing pipelines first (folder and name convention), read the YAML of the one that deploys the most similar service to the same environment, and follow its tasks, artifact handling, configuration transform and step names. Every deviation is named to the owner with its reason before the pipeline is written, not discovered later in a review.
+- **Configuration that `FileTransform` replaces must exist in the file.** JSON variable substitution changes only keys already present in `appsettings.<Environment>.json`; a variable named after a missing key does not add it. So the file in the repository lists every key the server needs, and each variable in the group carries the key's path (`ConnectionStrings.Default`, `Section.Key`, `Section.Array.0`; case-sensitive). The value in the file is empty rather than a placeholder text: an unreplaced empty value stops a service that validates its settings at startup, while a placeholder may be accepted as a valid key. The documentation does not say whether secret variables are substituted; the first run shows it.
+- **Secrets reach a script through `env:`, never inline.** `$(Secret)` inside a script body is written into the script file on the agent; map it to an environment variable of the step and read that.
+- **A value that is the same in every environment** is not a pipeline variable: it goes into `appsettings.json` in the repository and changes through a pull request.
+
+### Variable groups
+
+- **An update replaces the whole group** (`PUT …/distributedtask/variablegroups/<id>?api-version=7.1-preview.2`): a variable left out is deleted. Re-read the group right before writing, and send each existing secret under its own name with `isSecret: true` and no value, so the stored value stays.
+- **A secret cannot be renamed through the API**: its value is never returned, so it cannot be carried to a new name. The owner renames it in Library, or the agent creates the new name empty and the owner types the value again.
+- **The Library page saves the version it loaded.** A page opened before the agent's write overwrites that write when the owner saves, and the variables come back under their old names. Before the owner edits a group the agent changed, tell them to reload the page; after they edit, re-read the group before the next write.
+
+### Environments
+
+- **A VM's tags cannot be set through the public REST API.** The documented route (`…/distributedtask/environments/<id>/providers/virtualmachinegroups/<resourceId>/virtualmachines`, up to `6.0-preview.1`) serves only resources of type virtual machine group; for a resource of type `virtualMachine` it answers `404 Resource with ID … does not exist`, and `…/providers/virtualmachines` does not exist. The web UI saves tags through `_apis/Contribution/HierarchyQuery`, an internal data provider without a published contract, which the agent does not call. The tag is added in Pipelines → Environments → the resource → Manage tags, or when the agent is registered on the VM (`--addvirtualmachineresourcetags`). The REST API reads the tags back (`GET …/distributedtask/environments/<id>?expands=resourceReferences&api-version=7.1-preview.1`).
+- **Read the environment's checks before the first run** (`GET …/pipelines/checks/configurations?resourceType=environment&resourceId=<id>&$expand=settings&api-version=7.1-preview.1`): an approval names the groups that must approve each deploy, and the owner needs to know who that is before the run waits on them.
+
+### Calls
+
+| Purpose | Call |
+|---|---|
+| List pipelines (id, folder, name) | `GET …/pipelines?api-version=7.1` |
+| Register a YAML pipeline; the file must already be pushed | `POST …/pipelines?api-version=7.1` with `folder`, `name`, `configuration: { type: "yaml", path: "/<path>.yml", repository: { id, name, type: "azureReposGit" } }` |
+| List or find variable groups | `GET …/distributedtask/variablegroups?groupName=<name>&api-version=7.1-preview.2` |
+| Create a variable group | `POST <organization>/_apis/distributedtask/variablegroups?api-version=7.1-preview.2` with `name`, `type: "Vsts"`, `variables`, `variableGroupProjectReferences: [{ name, projectReference: { id, name } }]` |
+| List environments; one with its resources and tags | `GET …/distributedtask/environments?api-version=7.1-preview.1`; `GET …/distributedtask/environments/<id>?expands=resourceReferences&api-version=7.1-preview.1` |
+| Allow a pipeline to use a resource | `PATCH …/pipelines/pipelinepermissions/<environment or variablegroup>/<id>?api-version=7.1-preview.1` with `pipelines: [{ id, authorized: true }]` |
+| Start a run on a branch | `POST …/pipelines/<id>/runs?api-version=7.1` with `resources: { repositories: { self: { refName: "refs/heads/<branch>" } } }` |
+| Read a run: steps and their result, then a step's log | `GET …/build/builds/<runId>/timeline?api-version=7.1`; `GET …/build/builds/<runId>/logs/<logId>?api-version=7.1` |
+
+Print from a run only the failed steps and the last lines of their logs; a whole log costs as much as a whole REST response ("MCP or REST").
 
 ## Entering items
 

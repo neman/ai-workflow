@@ -16,8 +16,8 @@ function Invoke-Ado {
         [string]$ContentType = 'application/json',
         [string]$TokenVariable = 'PERSONAL_ACCESS_TOKEN'
     )
-    $token = [Environment]::GetEnvironmentVariable($TokenVariable, 'Process')
-    if (-not $token) { $token = [Environment]::GetEnvironmentVariable($TokenVariable, 'User') }
+    $token = [Environment]::GetEnvironmentVariable($TokenVariable, 'User')
+    if (-not $token) { $token = [Environment]::GetEnvironmentVariable($TokenVariable, 'Process') }
     if (-not $token) { throw "The environment variable $TokenVariable is empty; store the token first (azure-devops.md, Setup, step 2)." }
 
     $request = @{ Method = $Method; Uri = $Uri; Headers = @{ Authorization = "Basic $token" } }

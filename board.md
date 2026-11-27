@@ -1,10 +1,10 @@
 # Board rules
 
-Rules for a backlog whose profile names a tracker, whichever it is: what goes on the board, who confirms it and how board text is written. Read this before reading or writing the board or a pull request (work items, review threads, creating a pull request, posting review comments). How each write is carried out (setup, the token, the calls, field names and values) is in the file of the tracker or the code host, read together with this one: `azure-devops.md` for Azure DevOps. Values marked `<…>` come from the profile's `Board` section.
+Rules for a backlog whose profile names a tracker, whichever it is: what goes on the board, who confirms it and how board text is written. Read this before reading or writing the board or a pull request (work items, review threads, creating a pull request, posting review comments). How each write is carried out (setup, the token, the calls, field names and values) is in the file of the tracker or the code host, read together with this one: `azure-devops.md` for Azure DevOps, `github.md` for GitHub. Values marked `<…>` come from the profile's `Board` section.
 
 ## The tracker's file and the code host's file
 
-The profile names two things. `Tracker` is where the board is. `Code host` is where the code repositories and their pull requests are; a profile without that line means the tracker holds both. Each one the module knows has a single file (`azure-devops.md`), and one file serves both roles when they are the same. Every such file carries the same section names, so a rule here or in another file can point at them without naming the product:
+The profile names two things. `Tracker` is where the board is. `Code host` is where the code repositories and their pull requests are; a profile without that line means the tracker holds both. Each one the module knows has a single file (`azure-devops.md`, `github.md`), and one file serves both roles when they are the same. Every such file carries the same section names, so a rule here or in another file can point at them without naming the product:
 
 - `Setup`: what a person does once per machine so the agent can reach it, and which fields the profile carries for it.
 - `Handling the token`: how a command or script may use the credential.

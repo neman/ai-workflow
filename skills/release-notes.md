@@ -1,6 +1,6 @@
 # Release notes
 
-A checklist for the release notes of one production release: what goes out, what the release needs, and the message to the client. The record lives in `releases/` of the backlog (`../backlog.md` "Releases"); the calls are in the code host's file, "Reading a pull request" (`../azure-devops.md` for Azure DevOps). The language of every text written, and of the client message, comes from the profile (`AGENTS.md` of the backlog).
+A checklist for the release notes of one production release: what goes out, what the release needs, and the message to the client. The record lives in `releases/` of the backlog (`../backlog.md` "Releases"); the calls are in the code host's file, "Reading a pull request" (`../azure-devops.md` for Azure DevOps, `../github.md` for GitHub). The language of every text written, and of the client message, comes from the profile (`AGENTS.md` of the backlog).
 
 ## Steps
 

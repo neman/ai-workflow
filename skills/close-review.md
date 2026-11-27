@@ -1,6 +1,6 @@
 # Closing a code review
 
-A checklist for closing the record of a code review in `code-reviews/` once its pull request is merged or closed without merging. It is written for a subagent on a cheaper model: every step says what to read, what to write and what to report; the judgment stays with the main session, which reads the report before the push. The rules behind it are in `../backlog.md` "Code reviews", "Closing" and "Git"; the words for a pull request's state, approvals and threads in `../board.md` "Pull requests"; the calls, with its own value for each of those words, in the code host's file, "Reading a pull request" (`../azure-devops.md` for Azure DevOps). The labels and the language of every text written come from the profile (`AGENTS.md` of the backlog).
+A checklist for closing the record of a code review in `code-reviews/` once its pull request is merged or closed without merging. It is written for a subagent on a cheaper model: every step says what to read, what to write and what to report; the judgment stays with the main session, which reads the report before the push. The rules behind it are in `../backlog.md` "Code reviews", "Closing" and "Git"; the words for a pull request's state, approvals and threads in `../board.md` "Pull requests"; the calls, with its own value for each of those words, in the code host's file, "Reading a pull request" (`../azure-devops.md` for Azure DevOps, `../github.md` for GitHub). The labels and the language of every text written come from the profile (`AGENTS.md` of the backlog).
 
 ## Inputs
 

@@ -11,7 +11,7 @@ The backlog `AGENTS.md` carries:
 - `Who works here`: people who run sessions here. The **owner** is the person running the session.
 - `Language`: the language of items and board text.
 - `Field map`: a table `Concept | Label`, or the sentence "labels are the canonical English names".
-- `Board`: `Tracker`, the fields the tracker's file names for reaching it (`Organization`, `Project` and `MCP server` for Azure DevOps), `Work item types` (the hierarchy, top down), `Acceptance criteria field` (or `none`), `QA tests from the board: yes|no`. Board writes follow `board.md`, together with the tracker's own file (`azure-devops.md` when the tracker is Azure DevOps).
+- `Board`: `Tracker`, the fields the tracker's file names for reaching it (`Organization`, `Project`, `MCP server` and `Pipelines` for Azure DevOps; `Repository` and `Visibility` for GitHub), `Work item types` (the hierarchy, top down), `Acceptance criteria field` (or `none`), `QA tests from the board: yes|no`. Board writes follow `board.md`, together with the tracker's own file (`azure-devops.md` or `github.md`).
 - `Code host`: where the code repositories and their pull requests are; the tracker, when the line is missing. Pull requests follow `board.md` "Pull requests" and the code host's file.
 - `Domain docs`: where the glossary and architecture decisions live, and the glossary's language rules.
 - `Decisions`: the file that records the dated history behind these rules for this project.

@@ -1,6 +1,6 @@
 # ai-workflow
 
-A set of rules for working with AI coding agents (Claude Code, Codex) across the repositories of one project, plus an **AI backlog**: a small git repository next to the code where agents and people keep implementation plans, tickets (bugs, technical debt, refactoring), testing and code-review records, support cases and architecture notes, each with a status that can be listed mechanically. The board (Azure DevOps today) is written only from those items, after confirmation.
+A set of rules for working with AI coding agents (Claude Code, Codex) across the repositories of one project, plus an **AI backlog**: a small git repository next to the code where agents and people keep implementation plans, tickets (bugs, technical debt, refactoring), testing and code-review records, support cases and architecture notes, each with a status that can be listed mechanically. The board (Azure DevOps or GitHub Issues) is written only from those items, after confirmation.
 
 The rules are generic: no project names, people or dates. Each project adds a short **profile** (an `AGENTS.md` with its people, language, branches, board) and a decisions file with its own dated history. The module is pulled into every project as a git submodule, so both tools read it as plain files and a rule changes in one place.
 
@@ -14,6 +14,7 @@ What it does not do: it is not a task runner or a plugin, and it does not replac
 | `backlog.md` | agents | creating, moving or changing a backlog item |
 | `board.md` | agents | reading or writing the board or a pull request, whichever tracker it is: what is entered, what the owner confirms first, how board text and pull requests are written |
 | `azure-devops.md` | agents, people | the tracker or code host is Azure DevOps: how `board.md` is carried out there ("MCP or REST"); writing, registering or running a pipeline, changing a variable group or an environment ("Pipelines"); setting up the MCP server; before a command or script uses the token ("Handling the token") |
+| `github.md` | agents, people | the tracker or code host is GitHub: how `board.md` is carried out there with the `gh` command line; signing in ("Setup"); before a command uses the token ("Handling the token") |
 | `openspec.md` | agents, people | the project plans work as [OpenSpec](https://github.com/Fission-AI/OpenSpec) changes: where they live (the backlog as an OpenSpec store), how a change relates to tickets and the board |
 | `INIT.md` | agents | setting up or checking a workspace |
 | `skills/` | agents | a skill asks for the issue tracker, triage labels or domain docs; a code review is closed after its PR is merged (`close-review.md`); release notes and the client message are written for a production release (`release-notes.md`); a test plan or checks are run through a browser (`browser-testing.md`) |
@@ -26,6 +27,7 @@ What it does not do: it is not a task runner or a plugin, and it does not replac
 - git: `git --version`
 - Claude Code (`claude --version`) and/or Codex (`codex --version`)
 - Node.js, only for the Azure DevOps board: `node --version`
+- GitHub CLI, only when the board or the code is on GitHub: `gh --version`
 - OpenSpec CLI (`npm install -g @fission-ai/openspec`), only for spec-driven changes: `openspec --version`
 
 ## Set up a new project with an agent
@@ -68,6 +70,10 @@ Setting up by hand follows the same `INIT.md`, step by step.
 ## Azure DevOps
 
 `azure-devops.md` "Setup" has the PAT, the MCP server registration for Claude Code and Codex, the wrapper for a second organization on the same machine, and the troubleshooting list. `INIT.md` Step 7 walks through it with your values.
+
+## GitHub
+
+`github.md` "Setup" has the `gh` sign-in and the profile fields. There is no token to store and no server to register; `INIT.md` Step 7 checks the sign-in and the repository.
 
 ## Join an existing project
 

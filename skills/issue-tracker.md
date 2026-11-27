@@ -1,6 +1,6 @@
 # Issue tracker: AI backlog convention
 
-Issues for this project are Markdown tickets in `tickets/` and plans in `plans/` of the backlog. `../backlog.md` is the authoritative source for folder layout, required contents, statuses and file naming; read it before creating or changing an item. The board (profile, `Board` section) holds the work items, written only by `../board.md` and the tracker's own file (`../azure-devops.md` for Azure DevOps). Labels below are canonical concepts; write the label from the profile's field map.
+Issues for this project are Markdown tickets in `tickets/` and plans in `plans/` of the backlog. `../backlog.md` is the authoritative source for folder layout, required contents, statuses and file naming; read it before creating or changing an item. The board (profile, `Board` section) holds the work items, written only by `../board.md` and the tracker's own file (`../azure-devops.md` for Azure DevOps, `../github.md` for GitHub). Labels below are canonical concepts; write the label from the profile's field map.
 
 ## When a skill says "publish to the issue tracker"
 

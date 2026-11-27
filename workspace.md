@@ -70,7 +70,7 @@ Every round of questions with options — grilling, brainstorming, any decision 
 
 ## Tokens and other secrets
 
-A token, password or key never goes on a command line, into a URL, a file under version control, a backlog item or a message: a failed command prints its whole command line, and logs keep it. Read the secret from its environment variable inside the process that uses it, and report a failure by its error text, not by the command that failed. If a secret shows up in output, a log or a transcript, tell the owner at once and say where, without repeating it. The full rules, with the way to hand a token to git, are in "Handling the token" of the file for the tracker or code host the token belongs to (`azure-devops.md` for Azure DevOps); read them before writing a command or script that uses one.
+A token, password or key never goes on a command line, into a URL, a file under version control, a backlog item or a message: a failed command prints its whole command line, and logs keep it. Read the secret from its environment variable inside the process that uses it, and report a failure by its error text, not by the command that failed. If a secret shows up in output, a log or a transcript, tell the owner at once and say where, without repeating it. The full rules, with the way to hand a token to git, are in "Handling the token" of the file for the tracker or code host the token belongs to (`azure-devops.md` for Azure DevOps, `github.md` for GitHub); read them before writing a command or script that uses one.
 
 ## Tests
 

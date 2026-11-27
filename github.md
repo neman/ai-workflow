@@ -56,13 +56,13 @@ Add `--jq` and print only the fields the task needs. The GitHub values behind th
 
 ### Creating a pull request
 
-When a pull request is created, what the owner confirms and what its text says are in `board.md` "Pull requests". After the confirmation, with the description in a UTF-8 file *(not run yet)*:
+When a pull request is created, what the owner confirms and what its text says are in `board.md` "Pull requests". After the confirmation, with the description in a UTF-8 file:
 
 ```powershell
 gh pr create -R <owner>/<repo> --head <branch> --base <target> --title "<title>" --body-file <file.md>
 ```
 
-- Always pass `--head`: without it `gh` takes the current branch and may offer to push it. The branch is pushed by the owner first.
+- Always pass `--head`: without it `gh` takes the current branch and may offer to push it. The branch is pushed first. The last output line is the pull request's address, which ends in its number.
 - **The description names its board items as `Refs #<n>`.** A closing keyword before the number (`Closes`, `Fixes`, `Resolves`) makes GitHub close the issue the moment the pull request is merged, and so does linking the issue in the pull request's sidebar. The state of a board item is set by people (`board.md` "Entering items"), so a closing keyword is written only when the owner asks for it for that item.
 
 ### Review comments

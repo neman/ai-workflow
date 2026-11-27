@@ -94,14 +94,14 @@ The rules are in `board.md` "Entering items". What GitHub adds:
 - **Reading an issue**: `gh issue view <n> -R <owner>/<repo> --json number,title,state,stateReason,labels,assignees,milestone,body,closedAt`. Its type and the count of its sub-issues: `gh api repos/<owner>/<repo>/issues/<n> --jq '{type: .type.name, sub: .sub_issues_summary}'`. Its children: `gh api repos/<owner>/<repo>/issues/<n>/sub_issues`. Its parent: `gh api repos/<owner>/<repo>/issues/<n>/parent`, which answers `404` when there is none.
 - **State**: `OPEN`, or `CLOSED` with `stateReason` `COMPLETED` or `NOT_PLANNED`. The agent neither closes nor reopens an issue.
 - **Acceptance criteria**: the profile's `Acceptance criteria field` is `none`, so they are the last section of the issue body, `## Acceptance criteria`, as a checkbox list. Ticking a box on GitHub edits the body, so re-read the body right before every write: a body written from an older copy erases the ticks made since.
-- **Creating an issue**, with the body in a UTF-8 file *(not run yet)*: `gh issue create -R <owner>/<repo> --title "<title>" --body-file <file.md> --label <label>`. `gh` has no flag for the type or the parent; both are set afterwards *(not run yet)*:
+- **Creating an issue**, with the body in a UTF-8 file: `gh issue create -R <owner>/<repo> --title "<title>" --body-file <file.md>`, with `--label <label>` *(not run yet)* when the item has one. Its last output line is the issue's address, which ends in the number. `gh` has no flag for the type or the parent; both are set afterwards, the type first and the parent second *(the parent call not run yet)*:
 
   ```powershell
   gh api -X PATCH repos/<owner>/<repo>/issues/<n> -f type=<Type>
   gh api -X POST repos/<owner>/<repo>/issues/<parent n>/sub_issues -F sub_issue_id=<child id>
   ```
 
-  `<child id>` is the child's `id` from `gh api repos/<owner>/<repo>/issues/<n> --jq .id`, not its number.
+  Between the two calls the issue exists without its type, so read it back (`--jq '{number, type: .type.name}'` on the first call) before reporting it as entered. `<child id>` is the child's `id` from `gh api repos/<owner>/<repo>/issues/<n> --jq .id`, not its number.
 - **Labels** come from `gh label list -R <owner>/<repo>`; a label that does not exist yet is named as new in the confirmation list.
 - **The confirmation list** names, for every item: the repository and its visibility, the type, the title, the parent, the labels and the milestone.
 - **The id written back** is the issue number, as `#<n>`: the ticket section becomes `## PBI N (#<n>): title`.

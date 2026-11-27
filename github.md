@@ -70,13 +70,14 @@ gh pr create -R <owner>/<repo> --head <branch> --base <target> --title "<title>"
 Which findings are posted, and in which language, is in `board.md` "Pull requests".
 
 - Read the existing threads with the GraphQL call above.
-- A comment on a line, from a UTF-8 file, anchored on the head commit that was reviewed *(not run yet)*:
+- A comment on a line, from a UTF-8 file, anchored on the head commit that was reviewed:
 
   ```powershell
   gh api repos/<owner>/<repo>/pulls/<n>/comments -F body=@<file.md> -f commit_id=<headRefOid> -f path=<path> -F line=<line> -f side=RIGHT
   ```
 
   Several lines add `-F start_line=<first> -f start_side=RIGHT`. A reply in an existing thread *(not run yet)*: `gh api repos/<owner>/<repo>/pulls/<n>/comments/<comment id>/replies -F body=@<file.md>`.
+- Editing a posted comment, for example to correct its text: `gh api -X PATCH repos/<owner>/<repo>/pulls/comments/<comment id> -F body=@<file.md>`. The new body replaces the old one, and GitHub marks the comment as edited.
 - A comment on the pull request as a whole *(not run yet)*: `gh pr comment <n> -R <owner>/<repo> --body-file <file.md>`.
 - Record the thread `id` and the comments' `databaseId` from the GraphQL call in the review record.
 - **The vote is the owner's**: never run `gh pr review --approve` or `--request-changes`, and never resolve a thread. The session ends with the verdict in the conversation (`backlog.md` "Code reviews").

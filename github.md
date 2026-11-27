@@ -44,7 +44,7 @@ Add `--jq` and print only the fields the task needs. The GitHub values behind th
 
 - **State**: `OPEN` = open, `MERGED` = merged, `CLOSED` = closed without merging.
 - **Merge commit**: `mergeCommit.oid`; merged by `mergedBy.login` at `mergedAt`.
-- **Approval**: an entry of `latestReviews` with `state` `APPROVED`, by `author.login` at `submittedAt`. `CHANGES_REQUESTED` blocks the pull request; `COMMENTED` is neither. `reviewDecision` is empty when the repository requires no review, so an empty value does not mean "not approved".
+- **Approval**: an entry of `latestReviews` with `state` `APPROVED`, by `author.login` at `submittedAt`. `CHANGES_REQUESTED` blocks the pull request; `COMMENTED` is neither. `reviewDecision` is empty when the repository requires no review, so an empty value does not mean "not approved". GitHub does not let the author approve their own pull request, so in a repository where the owner is the only person, `latestReviews` is empty and the merge is the only record: a review record names who merged and says `approved by: none (the author's own pull request)`.
 - **Thread**: review threads are not in `gh pr view`; they come from GraphQL. `isResolved: true` = resolved, `false` = open; `isOutdated` says the line has changed since the comment.
 
   ```powershell
@@ -92,8 +92,8 @@ The rules are in `board.md` "Entering items". What GitHub adds:
   ```
 
 - **Reading an issue**: `gh issue view <n> -R <owner>/<repo> --json number,title,state,stateReason,labels,assignees,milestone,body,closedAt`. Its type and the count of its sub-issues: `gh api repos/<owner>/<repo>/issues/<n> --jq '{type: .type.name, sub: .sub_issues_summary}'`. Its children: `gh api repos/<owner>/<repo>/issues/<n>/sub_issues`. Its parent: `gh api repos/<owner>/<repo>/issues/<n>/parent`, which answers `404` when there is none.
-- **State**: `OPEN`, or `CLOSED` with `stateReason` `COMPLETED` or `NOT_PLANNED`. The agent neither closes nor reopens an issue.
-- **Acceptance criteria**: the profile's `Acceptance criteria field` is `none`, so they are the last section of the issue body, `## Acceptance criteria`, as a checkbox list. Ticking a box on GitHub edits the body, so re-read the body right before every write: a body written from an older copy erases the ticks made since.
+- **State**: `OPEN`, or `CLOSED` with `stateReason` `COMPLETED` or `NOT_PLANNED`. The state is the owner's (`board.md` "Entering items"); when the owner asks for a specific issue to be closed: `gh issue close <n> -R <owner>/<repo> --reason completed` (or `--reason "not planned"`), then read `state` and `stateReason` back and record the date in the ticket.
+- **Acceptance criteria**: the profile's `Acceptance criteria field` is `none`, so they are the last section of the issue body, `## Acceptance criteria`, as a checkbox list. Ticking a box on GitHub edits the body, so re-read the body right before every write: a body written from an older copy erases the ticks made since. A change to the body, ticks included, goes through a file: `gh issue view <n> -R <owner>/<repo> --json body --jq .body > <file.md>`, edit the file, `gh issue edit <n> -R <owner>/<repo> --body-file <file.md>`, then read the body back.
 - **Creating an issue**, with the body in a UTF-8 file: `gh issue create -R <owner>/<repo> --title "<title>" --body-file <file.md>`, with `--label <label>` *(not run yet)* when the item has one. Its last output line is the issue's address, which ends in the number. `gh` has no flag for the type or the parent; both are set afterwards, the type first and the parent second *(the parent call not run yet)*:
 
   ```powershell

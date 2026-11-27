@@ -1,6 +1,6 @@
 # Issue tracker: AI backlog convention
 
-Issues for this project are Markdown tickets in `tickets/` and plans in `plans/` of the backlog. `../backlog.md` is the authoritative source for folder layout, required contents, statuses and file naming; read it before creating or changing an item. The board (profile, `Board` section) holds the work items, written only through `../azure-devops.md` or the tracker's equivalent. Labels below are canonical concepts; write the label from the profile's field map.
+Issues for this project are Markdown tickets in `tickets/` and plans in `plans/` of the backlog. `../backlog.md` is the authoritative source for folder layout, required contents, statuses and file naming; read it before creating or changing an item. The board (profile, `Board` section) holds the work items, written only by `../board.md` and the tracker's own file (`../azure-devops.md` for Azure DevOps). Labels below are canonical concepts; write the label from the profile's field map.
 
 ## When a skill says "publish to the issue tracker"
 
@@ -13,11 +13,11 @@ Issues for this project are Markdown tickets in `tickets/` and plans in `plans/`
 
 ## When a skill says "fetch the relevant ticket"
 
-Read the file at the path the user passes. Given a board work item id, grep `tickets/` and `plans/` for it; read it from the board with `../scripts/Get-AdoWorkItem.ps1` (`../azure-devops.md` "MCP or REST") only if no file has it.
+Read the file at the path the user passes. Given a board work item id, grep `tickets/` and `plans/` for it; read it from the board only if no file has it, the way the tracker's file says (for Azure DevOps `../scripts/Get-AdoWorkItem.ps1`, `../azure-devops.md` "MCP or REST").
 
 ## The board
 
-A skill never writes to the board on its own. Show the owner the exact list (type, title, parent, area and iteration path), write only after the owner confirms that list, then write the returned work item ids back into the ticket or plan in the same session. `State`, closing and deleting follow `../azure-devops.md` "Entering items": people set them, not agents.
+A skill never writes to the board on its own. Show the owner the exact list of items, write only after the owner confirms that list, then write the returned work item ids back into the ticket or plan in the same session. What the list names follows `../board.md` "Entering items"; so do an item's state, closing and deleting: people set them, not agents.
 
 ## Comments
 

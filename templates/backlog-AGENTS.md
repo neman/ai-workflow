@@ -1,6 +1,6 @@
 # AGENTS.md
 
-If `.ai-workflow/` is empty, run `git submodule update --init` first. Before creating, moving or changing any item in this folder, read `.ai-workflow/backlog.md`. Before reading or writing the board, a pull request or a pipeline, read `.ai-workflow/azure-devops.md`. Before creating or changing an OpenSpec change, read `.ai-workflow/openspec.md`.
+If `.ai-workflow/` is empty, run `git submodule update --init` first. Before creating, moving or changing any item in this folder, read `.ai-workflow/backlog.md`. Before reading or writing the board, a pull request or a pipeline, read `.ai-workflow/board.md` and the file of the tracker or code host (`.ai-workflow/azure-devops.md` for Azure DevOps). Before creating or changing an OpenSpec change, read `.ai-workflow/openspec.md`.
 
 ## Profile
 
@@ -10,13 +10,15 @@ If `.ai-workflow/` is empty, run `git submodule update --init` first. Before cre
 - Language: <language of items and board text>
 - Board:
   - Tracker: <Azure DevOps | none>
+  <!-- The next four lines are the Azure DevOps fields (`.ai-workflow/azure-devops.md` "Setup"); another tracker's file names its own. -->
   - Organization: <organization>
   - Project: <project>
   - MCP server: <server name registered with `claude mcp add`>, token in `<env-var>`
+  - Pipelines: <yes | no> (the agent registers, configures and runs pipelines; `yes` needs the pipeline scopes on the PAT)
   - Work item types: <e.g. Epic → Feature → PBI → Task>
   - Acceptance criteria field: <e.g. `Microsoft.VSTS.Common.AcceptanceCriteria` | none>
   - QA tests from the board: <yes | no>
-  - Pipelines: <yes | no> (the agent registers, configures and runs pipelines; `yes` needs the pipeline scopes on the PAT)
+- Code host: <Azure DevOps | none; with its own fields beneath when it is not the tracker>
 - Domain docs: <`CONTEXT.md` and `architecture/adr/`; language rules of the glossary when the language is not English>
 - Decisions: `docs/agents/decisions.md`
 - Backlog commits: <owner | agent, for closing reviews>

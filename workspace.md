@@ -25,12 +25,12 @@ Write findings in the profile's language. Each item stands on its own: the owner
 The naming below is the default for every project. The workspace profile's `## Conventions` lists only what deviates from it, such as a legacy branch or a prefix the project uses differently, and wins wherever the two differ. With `Tracker: none` there is no id, and a work branch is `<type>/<slug>`.
 
 - Shared branches: `main`, `dev` and `release/<version>`. They never receive direct commits.
-- Every work branch belongs to a board work item: `<type>/<id>-<slug>`, for example `fix/1234-login-timeouts`. The type follows the work item type: Bug is `fix`; Product Backlog Item, User Story and Feature are `feature`; Task is `task`. The slug is a few lowercase words from the item's title, joined by hyphens.
+- Every work branch belongs to a board work item: `<type>/<id>-<slug>`, for example `fix/1234-login-timeouts`. The type follows the kind of board item: a bug is `fix`; the item that carries a user story, and the item above it, are `feature` (Product Backlog Item, User Story or Feature in Azure DevOps); a task under one is `task`. The slug is a few lowercase words from the item's title, joined by hyphens.
 - A branch without an id is an exception for an experiment, not a rule. The moment the experiment becomes work, the owner creates the work item and renames the branch to the id form, before any pull request.
 
 A project can enforce the prefixes in its pull request validation build; the `<id>-<slug>` part stays the owner's discipline.
 
-Agents never create or rename branches. When reminding the owner to branch off a shared branch, propose the name in this form; use the same form when finding or creating a pull request (`azure-devops.md` "Pull requests").
+Agents never create or rename branches. When reminding the owner to branch off a shared branch, propose the name in this form; use the same form when finding or creating a pull request (`board.md` "Pull requests").
 
 ## Committing
 
@@ -70,7 +70,7 @@ Every round of questions with options — grilling, brainstorming, any decision 
 
 ## Tokens and other secrets
 
-A token, password or key never goes on a command line, into a URL, a file under version control, a backlog item or a message: a failed command prints its whole command line, and logs keep it. Read the secret from its environment variable inside the process that uses it, and report a failure by its error text, not by the command that failed. If a secret shows up in output, a log or a transcript, tell the owner at once and say where, without repeating it. The full rules, with the way to hand a token to git, are in `azure-devops.md` "Handling the token"; read them before writing a command or script that uses one.
+A token, password or key never goes on a command line, into a URL, a file under version control, a backlog item or a message: a failed command prints its whole command line, and logs keep it. Read the secret from its environment variable inside the process that uses it, and report a failure by its error text, not by the command that failed. If a secret shows up in output, a log or a transcript, tell the owner at once and say where, without repeating it. The full rules, with the way to hand a token to git, are in "Handling the token" of the file for the tracker or code host the token belongs to (`azure-devops.md` for Azure DevOps); read them before writing a command or script that uses one.
 
 ## Tests
 

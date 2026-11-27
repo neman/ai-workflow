@@ -1,10 +1,12 @@
 # Azure DevOps board
 
-Rules for a backlog whose profile says `Tracker: Azure DevOps`. Read this before reading or writing the board or a pull request (work items, review threads, creating a pull request, posting review comments), before writing, registering or running a pipeline or changing a variable group or environment, and before setting up the MCP server. Values marked `<…>` come from the profile's `Board` section or from the person setting things up.
+How the board rules are carried out for a backlog whose profile says `Tracker: Azure DevOps` or `Code host: Azure DevOps`: the MCP server, the token, the scripts and REST calls, the field names, and the pipelines. The rules themselves (what is entered, who confirms it, how board text and pull requests are written) are in `board.md` and apply to every read and write described here: read `board.md` first. Read this file before reading or writing the board or a pull request (work items, review threads, creating a pull request, posting review comments), before writing, registering or running a pipeline or changing a variable group or environment, and before setting up the MCP server. Values marked `<…>` come from the profile's `Board` section or from the person setting things up.
 
 ## Setup
 
 The agent uses Microsoft's Azure DevOps MCP server (`@azure-devops/mcp`, needs Node.js) with a personal access token (PAT). Interactive sign-in works only when the organization is connected to the Microsoft Entra directory that the signed-in account belongs to; an organization whose members sign in with personal accounts rejects it (`TF400813: … is not authorized`, or `invalid_scope`), and the Azure CLI token is rejected the same way. A PAT works in both cases, so it is the default.
+
+Profile fields: `Organization`, `Project`, `MCP server` (the registered server name and the variable that holds the token) and `Pipelines`. They sit under `Board` when Azure DevOps is the tracker, and under `Code host` when it holds only the code.
 
 1. Create a PAT at `https://dev.azure.com/<organization>/_usersSettings/tokens`, signed in with the account you use for the board. Choose "Custom defined" and tick these scopes:
 
@@ -145,38 +147,34 @@ In `scripts/`, PowerShell 7. Each takes `-Organization` and `-Project` from the 
 
 Pull requests go through the REST API, read and commented on with the scripts above. The calls below are what the scripts do, and the reference for anything they do not cover, such as creating a pull request. The same PAT (already Base64 `:<PAT>`) goes in the `Authorization: Basic …` header; use only that variable and follow "Handling the token" above. Base URL: `https://dev.azure.com/<organization>/<project>/_apis/git/repositories/<repo>`, with spaces in the project name URL-encoded (`%20`).
 
-- Find the PR (`Get-AdoPullRequest.ps1 -Branch`): `GET …/pullrequests?searchCriteria.sourceRefName=refs/heads/<branch>&searchCriteria.status=all&api-version=7.1`. Do this before creating one, so a branch never gets two.
+- Find the PR (`Get-AdoPullRequest.ps1 -Branch`): `GET …/pullrequests?searchCriteria.sourceRefName=refs/heads/<branch>&searchCriteria.status=all&api-version=7.1`.
 
 ### Reading a pull request
 
-Used when a review is closed (`backlog.md` "Code reviews", "Closing") and before posting comments: `Get-AdoPullRequest.ps1 -Id <id> -Iterations -Threads`, with `-System` when closing a review. Behind it:
+Used when a review is closed (`backlog.md` "Code reviews", "Closing"), before posting comments and for release notes: `Get-AdoPullRequest.ps1 -Id <id> -Iterations -Threads`, with `-System -Brief` when closing a review. Behind it are the calls below; each also says which Azure DevOps value stands for which word of `board.md` "Pull requests".
 
-- `GET …/pullRequests/<id>?api-version=7.1`: `status` (`active`, `completed` = merged, `abandoned`), `closedDate`, `lastMergeCommit.commitId`, `lastMergeTargetCommit.commitId`, `reviewers[]` with `vote` (`10` approved, `5` approved with suggestions, `-5` waiting, `-10` rejected) and `closedBy`.
-- `GET …/pullRequests/<id>/threads?api-version=7.1`: every thread with its `status` (`active`, `fixed`, `wontFix`, `closed`, `byDesign`, `pending`; empty on system threads) and comments. The system threads say who approved and who completed the PR, with the time.
+- `GET …/pullRequests/<id>?api-version=7.1`: `status` (`active` = open, `completed` = merged, `abandoned` = closed without merging), `closedDate`, `lastMergeCommit.commitId` (the merge commit), `lastMergeTargetCommit.commitId`, `reviewers[]` with `vote` (`10` approved, `5` approved with suggestions, `-5` waiting, `-10` rejected) and `closedBy` (who merged it). An approval is a vote of `10`.
+- `GET …/pullRequests/<id>/threads?api-version=7.1`: every thread with its `status` (`active` and `pending` = open; `fixed`, `wontFix`, `closed` and `byDesign` = resolved; empty on system threads) and comments. The system threads say who approved and who merged the PR, with the time.
 - `GET …/pullRequests/<id>/iterations?api-version=7.1`: one entry per push with its source commit; a review names them as iterations.
+- `GET …/pullRequests/<id>/workitems?api-version=7.1`: the board items linked to the PR.
 
 ### Creating a pull request
 
-Only when the owner asks for it; the branch must already be pushed. Show the owner the source branch, the target branch and the title, and create the PR after confirmation:
+When a pull request is created, what the owner confirms and what its text says are in `board.md` "Pull requests". After the confirmation:
 
 - `POST …/pullrequests?api-version=7.1` with `sourceRefName`, `targetRefName`, `title`, `description` and `workItemRefs: [{"id": "<workItemId>"}]` for every board item the branch implements. Send the body as UTF-8 bytes.
-- The source branch is named after the board item (`workspace.md` "Branches"); a branch without an id gets its work item and its name first. The target is the branch the work was cut from (`dev` or `main`, the profile's `Conventions` when they differ, or the integration branch of an epic from the topic's `AGENTS.md`).
-- Title and description in English, whatever the profile's language: a pull request belongs to the code, like branch names and commit messages. Written for non-technical readers, no attribution lines. The description says what changes for the user and names the board items as `#<id>`. It has no code, diffs, file trees, class, method or test names, test counts or pipeline steps; those belong in the commit messages and the repository's `docs/`. When a PR-writing skill or template asks for them (a diff sketch, a call tree, test evidence, a merge-risk section), this rule wins.
-- Record the PR id where the work is written up (the ticket, the plan's `Board:` line or the review record).
 
 ### Review comments
 
-When the owner asks for review comments on a PR "in their name":
+Which findings are posted, and in which language, is in `board.md` "Pull requests".
 
-- Read the existing threads first (`Get-AdoPullRequest.ps1 -Threads`) so the same finding is not posted twice.
-- Post only findings about the diff (`backlog.md` "Code reviews"). A finding in a file outside the PR's changes, or about code the PR does not touch, goes to a ticket, not to a PR-level thread.
+- Read the existing threads with `Get-AdoPullRequest.ps1 -Threads`.
 - Write each comment to its own Markdown file, then post it with `Add-AdoPullRequestComment.ps1 -BodyFile <file.md>` and one of:
   - `-FilePath <path> -Line <n> [-EndLine <n>] [-Iteration <n>]`: a new thread on a file line. Line numbers are those of the file at the reviewed iteration's source commit; the script uses the latest iteration unless `-Iteration` names the reviewed one, and prints the iteration and commit it anchored on.
   - `-ThreadId <id> [-Status active]`: a reply in an existing thread, for example when a fix is incomplete and the thread is reopened.
   - neither: a new thread on the PR as a whole.
 - The script reads the thread back and prints its id, comment id, status and author, or fails when the stored text differs from the file. `-WhatIf` prints the request without posting.
 - Behind it: `POST …/pullRequests/<id>/threads?api-version=7.1` with `threadContext.filePath` (leading `/`) and `rightFileStart` / `rightFileEnd`, and `pullRequestThreadContext` with the file's `changeTrackingId` from `GET …/iterations/<n>/changes` and both `iterationContext` comparing iterations set to `n`, which anchors the line on the diff against the common base so it stays in place when later iterations arrive ([REST reference](https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-request-threads/create?view=azure-devops-rest-7.1)). The body goes as UTF-8 bytes, otherwise non-ASCII characters are garbled.
-- Comments are in the profile's language. Record the PR and thread ids where the review is written up (the plan's `Code review` section, the review record or the ticket).
 
 ## Pipelines
 
@@ -225,28 +223,8 @@ Print from a run only the failed steps and the last lines of their logs; a whole
 
 ## Entering items
 
-Board items are entered by the agent, never copied by hand. `Work item types` in the profile gives the hierarchy (for example Epic → Feature → PBI → Task); "PBI" below stands for the type that carries the user story.
+The rules are in `board.md` "Entering items". What Azure DevOps adds:
 
-- Titles and descriptions are in the profile's language, written for non-technical readers.
-- A PBI description opens with the user story under the English label **`User story:`**; the story itself is in the profile's language, in its `User story` shape.
-- Acceptance criteria go into the profile's `Acceptance criteria field`, in **Markdown** format, as a checkbox list (`- [ ] …`), not as an HTML list and not in the description. Through the MCP server: `update_batch` with `format: "Markdown"` on that field. When the profile says the field is `none`, the criteria are the last section of the description.
-- Writing to the board is visible to the whole company. Before creating or changing items, show the owner the exact list: type, title, parent, area and iteration path. Write only after the owner confirms that list. A confirmation covers only that list.
-- Check the process template before the first write in a project: which work item types exist and which field holds the acceptance criteria. Record the answer in the profile's `Board` section.
-- Create parents first (top of the hierarchy down) and link each child to its parent in the same run.
-- After creating items, write the returned work item ids back where the draft lives: the ticket section `## PBI N (workItemId): title`, the plan's `Board:` line, or the task list of the change. Do this in the same session, before the numbers are lost.
-- `State` is set by people: never change it, and never delete or close a board item, unless the owner asks for that specific item. This holds after a merge too.
-
-## Board, ticket and test plan carry the same criteria
-
-Applies when the profile says `QA tests from the board: yes`. QA and the product owner test from the board, so a PBI must be testable from its board text alone.
-
-- **PBI description:** the user story, one or two sentences of context with links as `#workItemId`, and a `For testing` note when the PBI needs setup or cannot be tested yet (frontend missing, depends on another PBI). Items are referred to only by `#workItemId`; links go to the board or the web, never to local files.
-- **Acceptance criteria field:** one observable outcome per `- [ ]`, written for the tester: the exact on-screen texts (buttons, messages), how to trigger the case, example values. Verify every behavioural claim in the code before it goes in, and note in the ticket that it was read in code, not executed.
-- **Three places, one text:** the criteria are word for word the same in the board field, the PBI section of the ticket, and a `PBI criteria <id>` block in the PBI's test plan section. Change all three in the same edit. Test-only checks (direct API calls, SQL, API client collections) go under `Additional checks` in the test plan. A test plan check that another PBI's criterion already covers becomes a plain-bullet pointer to it, so every check is ticked in one place.
-- **Feature description:** `Feature scope` with one line per child (`- what it does - #id`), then `Test order` with a user story and a numbered list in test order, each line starting with `#id`, untestable children marked as such. Scope notes (`Out of scope`) stay in the ticket.
-- **Known open defects** stay out of the PBI text. The test plan notes them beside the criterion as expected `[!]` with the fixing Task.
-- **Before every board write**, re-read the item (revision, state, criteria): QA works in parallel. When QA has ticked a criterion or the PBI is in a testing or done state, leave its text as it is and add the clarification as a comment on the item. Mirror QA's ticks (`[X]` on the board) into the ticket and the test plan with who and when.
-
-## QA tests through the application
-
-Applies when the profile says `QA tests from the board: yes`. Board text names no people (not who prepares data, not who tests) and never sends the tester to the API, SQL or an API client. When a PBI needs data that only another PBI's screen can create, the `For testing` note names that PBI (`#id`) and the PBI is tested after it; the Feature's test order follows. API, SQL and client steps stay under `Additional checks` in the test plan.
+- The work item types and the acceptance criteria field come from the project's process template (`INIT.md` Step 7 has the call).
+- The acceptance criteria field is written in **Markdown** format, not as an HTML list. Through the MCP server: `update_batch` with `format: "Markdown"` on that field.
+- The confirmation list names the area path and the iteration path of every item.

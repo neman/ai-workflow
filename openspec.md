@@ -2,7 +2,7 @@
 
 Rules for a project whose backlog profile says `Spec-driven changes: OpenSpec store <id>`. [OpenSpec](https://github.com/Fission-AI/OpenSpec) is a CLI plus agent skills (`/opsx:explore`, `/opsx:propose`, `/opsx:apply`, `/opsx:archive`) that plan a piece of work as a **change** — `proposal.md` (why and what), `specs/` (behaviour the system must have), `design.md` (how), `tasks.md` (steps) — and keep the project's durable **specs** once a change is archived. Using it is optional: with `Spec-driven changes: none` nothing here applies and plans stay in `plans/`.
 
-OpenSpec changes nothing in the rest of this module. It adds a second shape for one artifact: the *how* of a piece of work is either a plan in `plans/` or an OpenSpec change, never both. Tickets, the board, reviews, support and the status listing are as `backlog.md` and `azure-devops.md` say.
+OpenSpec changes nothing in the rest of this module. It adds a second shape for one artifact: the *how* of a piece of work is either a plan in `plans/` or an OpenSpec change, never both. Tickets, the board, reviews, support and the status listing are as `backlog.md` and `board.md` say.
 
 ## Plan or change: decided per piece of work
 
@@ -65,7 +65,7 @@ Board: Epic #<id>, Feature #<id>.
 | 2, 3 | #<id> <title> |
 ```
 
-Board ids are written back here after the items are created (`azure-devops.md` "Entering items"). From then on the numbering of the task groups does not change, for the same reason as plan Tasks (`backlog.md` "Task numbers stay fixed once they are on the board"): new work goes at the end as the next group, dropped work keeps its number and is marked `Dropped`.
+Board ids are written back here after the items are created (`board.md` "Entering items"). From then on the numbering of the task groups does not change, for the same reason as plan Tasks (`backlog.md` "Task numbers stay fixed once they are on the board"): new work goes at the end as the next group, dropped work keeps its number and is marked `Dropped`.
 
 ## Status
 

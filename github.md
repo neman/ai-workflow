@@ -103,6 +103,7 @@ The rules are in `board.md` "Entering items". What GitHub adds:
 
   Between the two calls the issue exists without its type, so read it back (`--jq '{number, type: .type.name}'` on the first call) before reporting it as entered. `<child id>` is the child's `id` from `gh api repos/<owner>/<repo>/issues/<n> --jq .id`, not its number.
 - **Labels** come from `gh label list -R <owner>/<repo>`; a label that does not exist yet is named as new in the confirmation list.
+- **Milestones** group items by release. List them with `gh api repos/<owner>/<repo>/milestones --jq '.[].title'`; a new one is named in the confirmation list and created with `gh api repos/<owner>/<repo>/milestones -f title=<title> -f state=open`. An item gets it with `--milestone <title>` on `gh issue create` or `gh issue edit`.
 - **The confirmation list** names, for every item: the repository and its visibility, the type, the title, the parent, the labels and the milestone.
 - **The id written back** is the issue number, as `#<n>`: the ticket section becomes `## PBI N (#<n>): title`.
-- Issues that people entered before the backlog existed are board items like any other; their text is not rewritten into the module's shape unless the owner asks for that item.
+- Issues that people entered before the backlog existed are board items like any other; their text is not rewritten into the module's shape unless the owner asks for that item. When the owner does, `gh issue edit <n> -R <owner>/<repo> --title "<title>" --body-file <file.md>` replaces both; the old text stays in the issue's edit history, which the confirmation list says.
